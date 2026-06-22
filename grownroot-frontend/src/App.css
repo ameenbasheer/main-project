@@ -1,0 +1,712 @@
+/* Decorative background circles */
+.bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(45, 212, 191, 0.2);
+  pointer-events: none;
+}
+
+.bg-circle-lg {
+  width: 500px;
+  height: 500px;
+}
+
+.bg-circle-md {
+  width: 300px;
+  height: 300px;
+}
+
+.bg-circle-sm {
+  width: 150px;
+  height: 150px;
+}
+
+.bg-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(45, 212, 191, 0.4);
+  pointer-events: none;
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(45, 85, 80, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 16px;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(45, 212, 191, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Tab-style nav link */
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.nav-tab:hover {
+  background: rgba(45, 212, 191, 0.12);
+  border-color: rgba(45, 212, 191, 0.35);
+  color: #ffffff;
+}
+
+.nav-tab.active {
+  background: rgba(45, 212, 191, 0.18);
+  border-color: rgba(45, 212, 191, 0.55);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Full-bleed hero — breaks out of MainLayout's max-width + padding */
+.hero-fullbleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border-radius: 0;
+}
+
+/* Hero carousel */
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease-in-out;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.25s ease, width 0.25s ease;
+}
+
+.carousel-dot.active {
+  background: #2dd4bf;
+  width: 24px;
+}
+
+/* Gradient backgrounds — mid teal, lifted from near-black */
+.bg-gradient-dark {
+  background:
+    radial-gradient(1000px 600px at 15% 0%, rgba(45, 212, 191, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 90% 100%, rgba(102, 187, 106, 0.06), transparent 60%),
+    linear-gradient(135deg, #1F4242 0%, #2A5856 50%, #224B4A 100%);
+}
+
+.bg-gradient-card {
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.18) 0%, rgba(45, 85, 80, 0.45) 100%);
+}
+
+/* Sidebar active link */
+.sidebar-link.active {
+  background: rgba(45, 212, 191, 0.15);
+  border-left: 3px solid #2dd4bf;
+}
+
+/* Image rounded style */
+.img-showcase {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(45, 212, 191, 0.15);
+}
+
+/* Custom input style */
+.search-input {
+  background: transparent;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 30px;
+  color: #e2e8f0;
+  padding: 10px 20px;
+}
+
+.search-input::placeholder {
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2dd4bf;
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.15);
+}
+
+/* Feature pill buttons */
+.pill-btn {
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 30px;
+  padding: 12px 28px;
+  color: #e2e8f0;
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.pill-btn:hover {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: #2dd4bf;
+  color: #fff;
+}
+
+/* Stat card */
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+/* Product card */
+.product-card {
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.14) 0%, rgba(45, 85, 80, 0.45) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+/* ====================================================================
+ * LIGHT THEME (green + white) — scoped via `.light-theme` wrapper.
+ * Public marketing pages (Landing/Marketplace) opt in; dashboard stays
+ * on the dark theme by default.
+ * ==================================================================== */
+
+.light-theme {
+  color: #0E2A18;
+}
+
+/* Page-level gradient — repurposed to a light cream/mint */
+.light-theme.bg-gradient-dark,
+.light-theme .bg-gradient-dark {
+  background:
+    radial-gradient(900px 500px at 10% 0%, rgba(22, 163, 74, 0.06), transparent 60%),
+    radial-gradient(900px 500px at 90% 100%, rgba(22, 163, 74, 0.05), transparent 60%),
+    linear-gradient(180deg, #F7FAF4 0%, #EAF3E3 100%);
+}
+
+/* Tailwind utility overrides for the dark-* tokens within light theme */
+.light-theme .text-dark-text { color: #0E2A18; }
+.light-theme .text-dark-muted { color: #5F6E62; }
+.light-theme .border-dark-border { border-color: rgba(22, 163, 74, 0.18); }
+.light-theme .bg-dark-bg { background-color: #F7FAF4; }
+.light-theme .bg-dark-surface { background-color: #FFFFFF; }
+.light-theme .bg-dark-card { background-color: #FFFFFF; }
+
+/* Decorative elements — switch from teal-on-dark to green-on-light */
+.light-theme .bg-circle {
+  border: 2px solid rgba(22, 163, 74, 0.2);
+}
+.light-theme .bg-dot {
+  background: rgba(22, 163, 74, 0.35);
+}
+
+/* Glass card — clean white card with subtle green border */
+.light-theme .glass-card {
+  background: #FFFFFF;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1px solid rgba(22, 163, 74, 0.15);
+  box-shadow: 0 4px 14px rgba(20, 80, 40, 0.05);
+}
+.light-theme .glass-card:hover {
+  border-color: rgba(22, 163, 74, 0.4);
+  box-shadow: 0 10px 28px rgba(20, 80, 40, 0.1);
+}
+
+/* Nav tabs — dark text on light pill */
+.light-theme .nav-tab {
+  color: #15803D;
+}
+.light-theme .nav-tab:hover {
+  background: rgba(22, 163, 74, 0.08);
+  border-color: rgba(22, 163, 74, 0.4);
+  color: #15803D;
+}
+.light-theme .nav-tab.active {
+  background: rgba(22, 163, 74, 0.15);
+  border-color: rgba(22, 163, 74, 0.55);
+  color: #15803D;
+}
+
+/* Pill button — green outlined, fills on hover */
+.light-theme .pill-btn {
+  border: 1px solid rgba(22, 163, 74, 0.45);
+  color: #15803D;
+  background: #FFFFFF;
+}
+.light-theme .pill-btn:hover {
+  background: #16A34A;
+  border-color: #16A34A;
+  color: #FFFFFF;
+}
+
+/* Search input — light variant */
+.light-theme .search-input {
+  background: #FFFFFF;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  color: #0E2A18;
+}
+.light-theme .search-input::placeholder {
+  color: rgba(14, 42, 24, 0.45);
+}
+.light-theme .search-input:focus {
+  border-color: #16A34A;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+}
+
+/* Product card — clean white tile */
+.light-theme .product-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(22, 163, 74, 0.15);
+  box-shadow: 0 4px 14px rgba(20, 80, 40, 0.05);
+}
+.light-theme .product-card:hover {
+  box-shadow: 0 12px 28px rgba(20, 80, 40, 0.1);
+  border-color: rgba(22, 163, 74, 0.35);
+}
+
+/* Sidebar (if ever used inside light theme) */
+.light-theme .sidebar-link.active {
+  background: rgba(22, 163, 74, 0.12);
+  border-left: 3px solid #16A34A;
+}
+
+/* Card gradient backdrop — light tint */
+.light-theme .bg-gradient-card {
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+/* ----- Alternating dark-green section bands -----
+ * Full-bleed: breaks out of the layout's max-width / horizontal padding.
+ * Re-establishes white text + translucent surfaces for nested cards.
+ */
+.section-band-green {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background:
+    radial-gradient(900px 400px at 80% 0%, rgba(74, 222, 128, 0.18), transparent 60%),
+    linear-gradient(135deg, #1A4D2E 0%, #143E25 100%);
+  color: #FFFFFF;
+  overflow: hidden;
+}
+
+.section-band-green .text-dark-text { color: #FFFFFF; }
+.section-band-green .text-dark-muted { color: rgba(255, 255, 255, 0.7); }
+.section-band-green .border-dark-border { border-color: rgba(255, 255, 255, 0.18); }
+.section-band-green .text-accent { color: #86EFAC; }
+
+.section-band-green .glass-card {
+  background: rgba(255, 255, 255, 0.07);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+.section-band-green .glass-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(134, 239, 172, 0.45);
+}
+
+.section-band-green .product-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+.section-band-green .product-card:hover {
+  border-color: rgba(134, 239, 172, 0.4);
+}
+
+.section-band-green .pill-btn {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+.section-band-green .pill-btn:hover {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  color: #15803D;
+}
+
+.section-band-green .bg-circle {
+  border-color: rgba(134, 239, 172, 0.25);
+}
+
+/* ====================================================================
+ * Glowing gradient title + minimal helpers for testimonials & blog
+ * ==================================================================== */
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+@keyframes titleGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.35)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(74, 222, 128, 0.7)); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #16A34A, #4ADE80, #15803D, #4ADE80, #16A34A);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradientShift 5s ease infinite, titleGlow 3.5s ease-in-out infinite;
+}
+
+.section-band-green .gradient-text {
+  background: linear-gradient(90deg, #86EFAC, #FFFFFF, #4ADE80, #FFFFFF, #86EFAC);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text { animation: none; }
+  .fade-in-up { animation: none; }
+}
+
+/* ====================================================================
+ * Modern landing-page animations (additive — does not modify existing)
+ * ==================================================================== */
+
+@keyframes grFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -18px, 0); }
+}
+@keyframes grFloatX {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(18px, -10px, 0); }
+}
+@keyframes grDrift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(10px, -14px, 0) scale(1.05); }
+}
+@keyframes grBlobMorph {
+  0%, 100% { border-radius: 42% 58% 70% 30% / 45% 30% 70% 55%; }
+  33%      { border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%; }
+  66%      { border-radius: 30% 60% 50% 50% / 60% 45% 55% 40%; }
+}
+@keyframes grPulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.45); }
+  50%      { box-shadow: 0 0 0 16px rgba(74, 222, 128, 0); }
+}
+@keyframes grShimmer {
+  0%   { background-position: -220% 0; }
+  100% { background-position: 220% 0; }
+}
+@keyframes grSlideUp {
+  from { opacity: 0; transform: translate3d(0, 42px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes grSlideLeft {
+  from { opacity: 0; transform: translate3d(-42px, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes grSlideRight {
+  from { opacity: 0; transform: translate3d(42px, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes grScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes grTiltIn {
+  from { opacity: 0; transform: perspective(900px) rotateX(10deg) translateY(28px); }
+  to   { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
+}
+@keyframes grSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes grAurora {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes grRingExpand {
+  0%   { transform: scale(0.9);  opacity: 0.7; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@keyframes grMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes grPageEnter {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Scroll-reveal system — JS adds .in-view when element enters viewport */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0);
+  transition:
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.reveal-left  { transform: translate3d(-36px, 0, 0); }
+.reveal.reveal-right { transform: translate3d(36px, 0, 0); }
+.reveal.reveal-scale { transform: scale(0.93); }
+.reveal.reveal-tilt  { transform: perspective(900px) rotateX(9deg) translateY(28px); }
+.reveal.in-view {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1) rotateX(0);
+}
+.reveal[data-delay="80"]  { transition-delay: 80ms; }
+.reveal[data-delay="160"] { transition-delay: 160ms; }
+.reveal[data-delay="240"] { transition-delay: 240ms; }
+.reveal[data-delay="320"] { transition-delay: 320ms; }
+.reveal[data-delay="400"] { transition-delay: 400ms; }
+.reveal[data-delay="480"] { transition-delay: 480ms; }
+
+/* Page-level entrance — applied via <PageTransition> on every route.
+ * Re-keyed on pathname so it re-runs on each navigation. `backwards` fill
+ * paints the start frame before the first frame and then reverts to a clean,
+ * transform-free state, so it never traps position:fixed descendants. */
+.page-enter {
+  animation: grPageEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* Opt-in cascade: direct children fade-up in sequence. Drop on any grid/stack
+ * container (e.g. a dashboard root) for a staggered entrance. */
+.stagger-children > * {
+  animation: grPageEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.22s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.34s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.40s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.46s; }
+
+/* Floating morphing blobs (decorative background) */
+.float-blob {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+  opacity: 0.45;
+  animation:
+    grBlobMorph 16s ease-in-out infinite,
+    grDrift 11s ease-in-out infinite;
+}
+.float-blob.green {
+  background: radial-gradient(circle at 30% 30%, #4ADE80, #16A34A 60%, transparent 72%);
+}
+.float-blob.teal {
+  background: radial-gradient(circle at 30% 30%, #5EEAD4, #14B8A6 60%, transparent 72%);
+}
+.float-blob.lime {
+  background: radial-gradient(circle at 30% 30%, #BEF264, #65A30D 60%, transparent 72%);
+}
+.float-blob.amber {
+  background: radial-gradient(circle at 30% 30%, #FCD34D, #F59E0B 60%, transparent 72%);
+}
+.float-blob.float-a { animation-duration: 18s, 12s; }
+.float-blob.float-b { animation-duration: 22s, 14s; animation-direction: alternate-reverse; }
+.float-blob.float-c { animation-duration: 26s, 17s; opacity: 0.35; }
+
+/* Aurora gradient backdrop (place inside relatively positioned wrapper) */
+.aurora-bg::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 50% at 20% 30%, rgba(74, 222, 128, 0.20), transparent 60%),
+    radial-gradient(35% 40% at 80% 20%, rgba(94, 234, 212, 0.18), transparent 60%),
+    radial-gradient(45% 45% at 60% 80%, rgba(22, 163, 74, 0.20), transparent 60%);
+  background-size: 200% 200%;
+  animation: grAurora 18s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 3D tilt + glow card hover */
+.tilt-card {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease;
+  will-change: transform;
+}
+.tilt-card:hover {
+  transform: perspective(900px) translateY(-6px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 25px 50px -20px rgba(22, 163, 74, 0.4);
+}
+
+/* Animated gradient border ring */
+.shimmer-border {
+  position: relative;
+  isolation: isolate;
+}
+.shimmer-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg,
+    rgba(74, 222, 128, 0) 30%,
+    rgba(74, 222, 128, 0.65) 50%,
+    rgba(74, 222, 128, 0) 70%);
+  background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: grShimmer 5.5s linear infinite;
+  pointer-events: none;
+}
+
+/* Pulse ring around accent dot/avatar */
+.pulse-ring {
+  position: relative;
+}
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(74, 222, 128, 0.55);
+  animation: grRingExpand 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* Soft floating chip */
+.float-chip { animation: grFloat 6s ease-in-out infinite; }
+.float-chip.delay-1 { animation-delay: 0.6s; }
+.float-chip.delay-2 { animation-delay: 1.4s; }
+.float-chip.delay-3 { animation-delay: 2.2s; }
+
+/* Slow drifting decorative element */
+.drift-slow { animation: grFloatX 12s ease-in-out infinite; }
+
+/* Spinning slow accent ring */
+.spin-slow { animation: grSpin 28s linear infinite; }
+
+/* Marquee (infinite horizontal scroll) */
+.marquee {
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: grMarquee 32s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* Mouse-tracked spotlight on hero */
+.spotlight { position: relative; }
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 35%),
+    rgba(74, 222, 128, 0.22),
+    transparent 60%);
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.18s ease;
+}
+
+/* Word-by-word entrance */
+.word-rise {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.55em);
+  animation: grSlideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Underline-draw link */
+.link-draw { position: relative; display: inline-block; }
+.link-draw::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #4ADE80, #16A34A);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-draw:hover::after { transform: scaleX(1); }
+
+/* Glow pulse for CTA */
+.cta-glow { animation: grPulseGlow 2.4s ease-out infinite; border-radius: 9999px; }
+
+/* Subtle background grid for depth (use as ::before on section) */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(74, 222, 128, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 222, 128, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .page-enter,
+  .stagger-children > *,
+  .float-blob,
+  .float-chip,
+  .drift-slow,
+  .spin-slow,
+  .tilt-card,
+  .shimmer-border::after,
+  .pulse-ring::before,
+  .marquee-track,
+  .aurora-bg::before,
+  .word-rise,
+  .cta-glow,
+  .spotlight::before {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
