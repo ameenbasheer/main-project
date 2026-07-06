@@ -1,9 +1,20 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+// Shown while we verify a stored token on page load, so a refresh doesn't
+// flash the login page before the session is restored.
+function AuthLoading() {
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+      Loading…
+    </div>
+  );
+}
 
+export function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return <AuthLoading />;
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -12,8 +23,9 @@ export function ProtectedRoute({ children }) {
 }
 
 export function AdminRoute({ children }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
+  if (isLoading) return <AuthLoading />;
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -26,8 +38,9 @@ export function AdminRoute({ children }) {
 }
 
 export function FarmerRoute({ children }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
+  if (isLoading) return <AuthLoading />;
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

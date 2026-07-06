@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft,
@@ -15,6 +15,7 @@ import { GiPlantSeed } from 'react-icons/gi';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { CROP_STAGES } from '../../reducers/appReducer';
+import { searchLocations } from '../../services/weatherService';
 import PieChart3D, { PIE_PALETTE } from '../../components/common/PieChart3D';
 import Images from '../../assets/images';
 import logo from '../../assets/logo.png';
@@ -40,13 +41,6 @@ const CROP_CATALOG = [
   { name: 'Capsicum', image: Images.capsicum },
   { name: 'Cucumber', image: Images.cucumber },
   { name: 'Green Beans', image: Images.beans },
-];
-
-const MOCK_LOCATIONS = [
-  'Wayanad, Kerala', 'Kochi, Kerala', 'Thrissur, Kerala', 'Kozhikode, Kerala',
-  'Bangalore, Karnataka', 'Mysore, Karnataka', 'Coimbatore, Tamil Nadu',
-  'Chennai, Tamil Nadu', 'Hyderabad, Telangana', 'Pune, Maharashtra',
-  'Nagpur, Maharashtra', 'Ahmedabad, Gujarat', 'Jaipur, Rajasthan',
 ];
 
 const STEPS = [
@@ -123,18 +117,39 @@ function StepArea({ data, setData }) {
 function StepLocationSoil({ data, setData }) {
   const [query, setQuery] = useState(data.location || '');
   const [showSugg, setShowSugg] = useState(false);
+  const [matches, setMatches] = useState([]);
+  const [searching, setSearching] = useState(false);
   const [showSoilModal, setShowSoilModal] = useState(false);
   const [customSoil, setCustomSoil] = useState('');
 
-  const matches = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return MOCK_LOCATIONS.filter((l) => l.toLowerCase().includes(q)).slice(0, 5);
+  // Debounced place search via Open-Meteo geocoding. A ref tracks the latest
+  // request so a slow earlier response can't overwrite newer results.
+  const reqId = useRef(0);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setMatches([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const id = ++reqId.current;
+    const t = setTimeout(async () => {
+      try {
+        const results = await searchLocations(q);
+        if (id === reqId.current) setMatches(results);
+      } catch {
+        if (id === reqId.current) setMatches([]);
+      } finally {
+        if (id === reqId.current) setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(t);
   }, [query]);
 
-  const pickLocation = (l) => {
-    setQuery(l);
-    setData({ ...data, location: l });
+  const pickLocation = (place) => {
+    setQuery(place.label);
+    setData({ ...data, location: place.label, lat: place.lat, lng: place.lng });
     setShowSugg(false);
   };
 
@@ -173,24 +188,31 @@ function StepLocationSoil({ data, setData }) {
             onChange={(e) => {
               setQuery(e.target.value);
               setShowSugg(true);
-              setData({ ...data, location: e.target.value });
+              // Typing invalidates any previously picked coordinates.
+              setData({ ...data, location: e.target.value, lat: null, lng: null });
             }}
             onFocus={() => setShowSugg(true)}
             placeholder="Search a city or village..."
             className="flex-1 bg-transparent border-none outline-none text-light-text text-base py-3 px-3 placeholder:text-light-muted"
           />
         </div>
-        {showSugg && matches.length > 0 && (
+        {showSugg && query.trim().length >= 2 && (
           <div className="absolute z-20 mt-2 w-full bg-light-card border border-light-border rounded-xl shadow-2xl overflow-hidden py-1">
+            {searching && matches.length === 0 && (
+              <p className="px-4 py-2.5 text-sm text-light-muted">Searching…</p>
+            )}
+            {!searching && matches.length === 0 && (
+              <p className="px-4 py-2.5 text-sm text-light-muted">No places found</p>
+            )}
             {matches.map((m) => (
               <button
-                key={m}
+                key={m.id}
                 type="button"
                 onClick={() => pickLocation(m)}
                 className="w-full text-left px-4 py-2.5 text-sm text-light-text hover:bg-accent/10 hover:text-accent transition flex items-center gap-2.5"
               >
                 <FiMapPin size={14} className="text-accent" />
-                {m}
+                {m.label}
               </button>
             ))}
           </div>
@@ -628,13 +650,17 @@ function StepConfirm({ data }) {
 
 export default function FarmerOnboarding() {
   const navigate = useNavigate();
-  const { setFarmerProfile, setCrops } = useApp();
+  const { setFarmerProfile, addCrop } = useApp();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [data, setData] = useState({
     totalArea: '',
     areaUnit: 'acre',
     location: '',
+    lat: null,
+    lng: null,
     soilType: '',
     customSoilLabel: '',
     crops: [],
@@ -651,34 +677,45 @@ export default function FarmerOnboarding() {
     );
   }
 
-  const finish = () => {
-    setFarmerProfile({
-      totalArea: Number(data.totalArea),
-      areaUnit: data.areaUnit,
-      location: data.location,
-      soilType: data.soilType,
-      customSoilLabel: data.customSoilLabel || null,
-    });
-    const today = new Date();
-    const newCrops = data.crops.map((c, i) => ({
-      id: Date.now() + i,
-      name: c.name,
-      image: c.image,
-      currentStage: c.currentStage,
-      status: c.currentStage === 'Harvested' ? 'Harvested' : 'Active',
-      areaPercent: Number(c.areaPercent),
-      plantingDate: today.toISOString().slice(0, 10),
-      harvestingDate: '',
-      plantedDate: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      harvestDate: '',
-      field: '',
-      expenses: [],
-      sales: [],
-      notes: '',
-      aiSuggestion: '',
-    }));
-    setCrops(newCrops);
-    navigate('/dashboard');
+  const finish = async () => {
+    setSaveError('');
+    setSaving(true);
+    try {
+      await setFarmerProfile({
+        totalArea: Number(data.totalArea),
+        areaUnit: data.areaUnit,
+        location: data.location,
+        lat: data.lat,
+        lng: data.lng,
+        soilType: data.soilType,
+      });
+
+      const today = new Date();
+      const plantingDate = today.toISOString().slice(0, 10);
+      const plantedDate = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      // Persist each crop chosen during onboarding to the backend.
+      for (const c of data.crops) {
+        await addCrop({
+          name: c.name,
+          image: c.image,
+          currentStage: c.currentStage,
+          status: c.currentStage === 'Harvested' ? 'Harvested' : 'Active',
+          areaPercent: Number(c.areaPercent),
+          plantingDate,
+          harvestingDate: '',
+          plantedDate,
+          harvestDate: '',
+          field: '',
+          notes: '',
+          aiSuggestion: '',
+        });
+      }
+      navigate('/dashboard');
+    } catch (err) {
+      setSaveError(err.message || 'Could not save your setup. Please try again.');
+      setSaving(false);
+    }
   };
 
   const current = STEPS.find((s) => s.id === step);
@@ -699,7 +736,7 @@ export default function FarmerOnboarding() {
     <div className="light-theme min-h-screen bg-gradient-dark flex flex-col">
       {/* Top header — DARK GREEN BAND */}
       <header className="section-band-green">
-        <div className="px-6 md:px-10 py-5 flex items-center justify-between max-w-2xl mx-auto w-full">
+        <div className="px-6 md:px-10 py-4 flex items-center justify-between max-w-2xl mx-auto w-full">
           <Link to="/" className="inline-flex items-center no-underline">
             <img src={logo} alt="GrownRoot" className="h-9 w-auto object-contain" />
           </Link>
@@ -720,10 +757,10 @@ export default function FarmerOnboarding() {
         </div>
 
         {/* Editorial step header on the dark band */}
-        <div className="px-6 md:px-10 pb-5">
+        <div className="px-6 md:px-10 pb-3">
           <div className="w-full max-w-2xl mx-auto">
-            <div className="flex items-baseline gap-5 mb-3">
-              <span className="text-accent/40 text-7xl md:text-8xl font-bold leading-none tabular-nums select-none">
+            <div className="flex items-baseline gap-5 mb-1">
+              <span className="text-accent/40 text-7xl md:text-6xl font-bold leading-none tabular-nums select-none">
                 {String(step).padStart(2, '0')}
               </span>
               <div className="pb-2">
@@ -735,7 +772,7 @@ export default function FarmerOnboarding() {
                 </p>
               </div>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-3 leading-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3 leading-tight">
               {current.title}
             </h1>
             <p className="text-white/75 text-sm md:text-base leading-relaxed max-w-xl">
@@ -772,10 +809,10 @@ export default function FarmerOnboarding() {
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={!canContinue}
+                disabled={!canContinue || saving}
                 className="flex-1 h-[52px] inline-flex items-center justify-center gap-2 rounded-5 bg-accent text-white font-semibold text-sm tracking-wide hover:bg-accent/90 hover:shadow-[0_12px_32px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all group disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:hover:bg-accent"
               >
-                {step === 4 ? 'Finish setup' : 'Continue'}
+                {step === 4 ? (saving ? 'Saving…' : 'Finish setup') : 'Continue'}
                 {step === 4 ? (
                   <FiCheck size={17} />
                 ) : (
@@ -783,6 +820,9 @@ export default function FarmerOnboarding() {
                 )}
               </button>
             </div>
+            {saveError && (
+              <p className="text-red-600 text-xs text-center mt-3">{saveError}</p>
+            )}
             <p className="text-light-muted text-[11px] text-center mt-4">
               {canContinue
                 ? 'Press Enter or click Continue to proceed'

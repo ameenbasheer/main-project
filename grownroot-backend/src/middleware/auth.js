@@ -19,6 +19,10 @@ export async function protect(req, res, next) {
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists' });
     }
+    // A deactivated account keeps its token but loses access immediately.
+    if (user.status === 'inactive') {
+      return res.status(403).json({ message: 'Your account has been deactivated' });
+    }
     req.user = user;
     next();
   } catch {

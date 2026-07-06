@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import PageTransition from '../components/common/PageTransition';
+import AskGrownRoot from '../components/dashboard/AskGrownRoot';
 
 export default function DashboardLayout() {
   return (
@@ -16,6 +17,8 @@ export default function DashboardLayout() {
           </PageTransition>
         </main>
       </div>
+      {/* AI chat assistant — floats over every dashboard page */}
+      <AskGrownRoot />
     </div>
   );
 }

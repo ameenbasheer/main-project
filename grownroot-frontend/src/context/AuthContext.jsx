@@ -5,7 +5,12 @@ import { authApi, tokenStore } from '../services/api';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [state, dispatch] = useReducer(authReducer, initialAuthState);
+  // If a JWT is already stored, start in a loading state so route guards wait
+  // for the session-restore check below instead of bouncing to /login on refresh.
+  const [state, dispatch] = useReducer(authReducer, initialAuthState, (init) => ({
+    ...init,
+    isLoading: !!tokenStore.get(),
+  }));
 
   // Restore the session on first load if a JWT is already stored.
   useEffect(() => {
@@ -48,6 +53,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Persist basic profile fields (name, avatar) and reflect the result locally.
+  const updateUser = async (changes) => {
+    const { user } = await authApi.updateProfile(changes);
+    dispatch({ type: AUTH_ACTIONS.LOGIN, payload: user });
+    return user;
+  };
+
   const logout = () => {
     tokenStore.clear();
     dispatch({ type: AUTH_ACTIONS.LOGOUT });
@@ -58,7 +70,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, clearError }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, clearError, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

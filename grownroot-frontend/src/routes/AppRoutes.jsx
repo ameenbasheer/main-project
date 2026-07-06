@@ -10,6 +10,11 @@ import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
+// Account pages (any logged-in user)
+import Profile from '../pages/Profile';
+import Cart from '../pages/Cart';
+import MyOrders from '../pages/MyOrders';
+
 // Farmer pages
 import FarmerDashboard from '../pages/farmer/FarmerDashboard';
 import CropManagement from '../pages/farmer/CropManagement';
@@ -28,6 +33,8 @@ import AddProduct from '../pages/marketplace/AddProduct';
 
 // Admin pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminUsers from '../pages/admin/AdminUsers';
+import AdminProducts from '../pages/admin/AdminProducts';
 
 // Route protection
 import { ProtectedRoute, AdminRoute, FarmerRoute } from './ProtectedRoute';
@@ -63,6 +70,11 @@ export default function AppRoutes() {
             <WeatherPage />
           </main>
         } />
+
+        {/* Account pages — any authenticated user (farmer or buyer) */}
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
       </Route>
       <Route path="/marketplace/add" element={
         <ProtectedRoute>
@@ -93,6 +105,8 @@ export default function AppRoutes() {
         </AdminRoute>
       }>
         <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="products" element={<AdminProducts />} />
       </Route>
     </Routes>
   );

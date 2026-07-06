@@ -51,6 +51,11 @@ export const login = asyncHandler(async (req, res) => {
     throw new Error('Invalid email or password');
   }
 
+  if (user.status === 'inactive') {
+    res.status(403);
+    throw new Error('Your account has been deactivated. Please contact support.');
+  }
+
   res.json({
     user: publicUser(user),
     token: generateToken(user._id),

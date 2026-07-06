@@ -31,14 +31,15 @@ export const createProduct = asyncHandler(async (req, res) => {
   res.status(201).json(product);
 });
 
-// DELETE /api/products/:id — owner only
+// DELETE /api/products/:id — owner, or an admin moderating the marketplace
 export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
     res.status(404);
     throw new Error('Product not found');
   }
-  if (product.owner.toString() !== req.user._id.toString()) {
+  const isOwner = product.owner.toString() === req.user._id.toString();
+  if (!isOwner && req.user.role !== 'admin') {
     res.status(403);
     throw new Error('Not your product');
   }

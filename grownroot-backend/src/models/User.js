@@ -7,6 +7,8 @@ const farmerProfileSchema = new mongoose.Schema(
     totalArea: { type: Number, default: 0 },
     areaUnit: { type: String, default: 'acre' },
     location: { type: String, default: '' },
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
     soilType: { type: String, default: '' },
   },
   { _id: false }

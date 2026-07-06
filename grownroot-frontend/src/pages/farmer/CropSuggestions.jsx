@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiZap, FiDroplet, FiCalendar, FiTrendingUp, FiInfo, FiArrowLeft } from 'react-icons/fi';
+import { FiZap, FiDroplet, FiCalendar, FiTrendingUp, FiInfo, FiArrowLeft, FiWifiOff } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
-import { suggestCrops, SOIL_TYPES, SEASONS } from '../../services/aiService';
+import { aiApi } from '../../services/api';
+import { suggestCrops as suggestCropsLocal, SOIL_TYPES, SEASONS } from '../../services/aiService';
 
 const guessSeason = () => {
   const m = new Date().getMonth();
@@ -13,7 +14,7 @@ const guessSeason = () => {
 };
 
 const FIELD_CARD =
-  'rounded-2xl border border-light-border bg-white p-4';
+  'rounded-2xl border border-light-border bg-white p-4 mt-2';
 
 export default function CropSuggestions() {
   const { weather, farmerProfile } = useApp();
@@ -24,6 +25,8 @@ export default function CropSuggestions() {
   });
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
+  // 'ai' when Gemini answered, 'local' when we fell back to the rule-based engine.
+  const [source, setSource] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,13 +35,27 @@ export default function CropSuggestions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const list = await suggestCrops({
-      soilType: form.soilType,
-      season: form.season,
-      weather,
-    });
-    setResults(list);
-    setLoading(false);
+    const inputs = { soilType: form.soilType, season: form.season, weather };
+    try {
+      // Real AI first — richer, location-aware reasoning.
+      const data = await aiApi.suggestCrops({ ...inputs, location: form.region });
+      const list = (data.suggestions || []).map((s) => ({
+        name: s.name,
+        score: s.score,
+        reasons: Array.isArray(s.reasons) ? s.reasons : [],
+        daysToHarvest: s.daysToHarvest,
+        note: s.note,
+      }));
+      setResults(list);
+      setSource('ai');
+    } catch {
+      // Offline / no key / rate-limited — fall back to the local ranking engine.
+      const list = await suggestCropsLocal(inputs);
+      setResults(list);
+      setSource('local');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -123,7 +140,7 @@ export default function CropSuggestions() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-accent text-white font-semibold text-sm hover:shadow-[0_10px_28px_rgba(22,163,74,0.4)] transition-all disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-accent text-white font-semibold text-sm hover:shadow-[0_10px_28px_rgba(22,163,74,0.4)] transition-all disabled:opacity-60 mt-3"
           >
             <FiZap size={18} />
             {loading ? 'Analyzing…' : 'Get AI Suggestions'}
@@ -152,9 +169,20 @@ export default function CropSuggestions() {
 
           {results && results.length > 0 && (
             <>
-              <p className="text-light-muted text-xs uppercase tracking-wider">
-                Top {results.length} crops for your conditions
-              </p>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <p className="text-light-muted text-xs uppercase tracking-wider">
+                  Top {results.length} crops for your conditions
+                </p>
+                {source === 'ai' ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#DCEEDD] text-[#2D5A3D]">
+                    <FiZap size={10} /> AI-powered
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F5EFE0] text-[#6B5D4E]">
+                    <FiWifiOff size={10} /> Offline estimate
+                  </span>
+                )}
+              </div>
               {results.map((item, idx) => (
                 <div key={item.name} className="rounded-2xl border border-light-border bg-white p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
@@ -179,14 +207,18 @@ export default function CropSuggestions() {
                   )}
 
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-light-muted text-xs ml-7">
-                    <span className="flex items-center gap-1">
-                      <FiCalendar size={12} />
-                      ~{item.daysToHarvest} days to harvest
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <FiDroplet size={12} />
-                      {item.wateringPerWeek}× watering / week
-                    </span>
+                    {item.daysToHarvest != null && (
+                      <span className="flex items-center gap-1">
+                        <FiCalendar size={12} />
+                        ~{item.daysToHarvest} days to harvest
+                      </span>
+                    )}
+                    {item.wateringPerWeek != null && (
+                      <span className="flex items-center gap-1">
+                        <FiDroplet size={12} />
+                        {item.wateringPerWeek}× watering / week
+                      </span>
+                    )}
                   </div>
 
                   {item.note && (

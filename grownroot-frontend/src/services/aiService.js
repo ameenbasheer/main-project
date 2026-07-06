@@ -1,5 +1,4 @@
-// Mock AI service. Replace internals with real model/API calls later;
-// keep the function signatures stable so callers don't need to change.
+
 
 const CROP_LIBRARY = [
   {

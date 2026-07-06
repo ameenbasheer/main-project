@@ -108,7 +108,9 @@ export default function AddCrop() {
     setAiLoading(false);
   };
 
-  const handleSubmit = (e) => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const pct = Number(form.areaPercent);
     if (!form.name.trim()) return setError('Crop name is required.');
@@ -125,23 +127,28 @@ export default function AddCrop() {
       ? harvest.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       : '';
 
-    addCrop({
-      name: form.name.trim(),
-      image: form.image,
-      currentStage: form.currentStage,
-      status: form.currentStage === 'Harvested' ? 'Harvested' : 'Active',
-      areaPercent: pct,
-      plantingDate: form.plantingDate,
-      harvestingDate: form.harvestingDate || '',
-      plantedDate: plantedLabel,
-      harvestDate: harvestLabel,
-      field: form.field.trim(),
-      expenses: [],
-      sales: [],
-      notes: '',
-      aiSuggestion: insights?.note || '',
-    });
-    navigate('/dashboard/crops');
+    setError('');
+    setSaving(true);
+    try {
+      await addCrop({
+        name: form.name.trim(),
+        image: form.image,
+        currentStage: form.currentStage,
+        status: form.currentStage === 'Harvested' ? 'Harvested' : 'Active',
+        areaPercent: pct,
+        plantingDate: form.plantingDate,
+        harvestingDate: form.harvestingDate || '',
+        plantedDate: plantedLabel,
+        harvestDate: harvestLabel,
+        field: form.field.trim(),
+        notes: '',
+        aiSuggestion: insights?.note || '',
+      });
+      navigate('/dashboard/crops');
+    } catch (err) {
+      setError(err.message || 'Could not save crop. Please try again.');
+      setSaving(false);
+    }
   };
 
   return (
@@ -161,7 +168,7 @@ export default function AddCrop() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Allocation bar */}
-        <div className="rounded-3xl border border-light-border bg-white p-4">
+        <div className="rounded-3xl border border-light-border bg-white p-4 mb-3">
           <div className="flex items-center justify-between mb-2">
             <p className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold">
               Land allocation
@@ -179,7 +186,7 @@ export default function AddCrop() {
         </div>
 
         {/* Catalog picker */}
-        <div className="rounded-3xl border border-light-border bg-white p-4">
+        <div className="rounded-3xl border border-light-border bg-white p-4 mb-3">
           <p className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold mb-3">
             Pick a crop
           </p>
@@ -191,11 +198,10 @@ export default function AddCrop() {
                   key={c.name}
                   type="button"
                   onClick={() => pickCatalog(c)}
-                  className={`group relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
-                    selected
-                      ? 'border-accent shadow-[0_10px_28px_rgba(22,163,74,0.35)] scale-[1.04]'
-                      : 'border-transparent hover:border-accent/40 hover:-translate-y-0.5'
-                  }`}
+                  className={`group relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-200 ${selected
+                    ? 'border-accent shadow-[0_10px_28px_rgba(22,163,74,0.35)] scale-[1.04]'
+                    : 'border-transparent hover:border-accent/40 hover:-translate-y-0.5'
+                    }`}
                 >
                   <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
                   <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
@@ -212,11 +218,10 @@ export default function AddCrop() {
             <button
               type="button"
               onClick={startCustom}
-              className={`aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all duration-200 ${
-                form.isCustom
-                  ? 'border-accent text-accent bg-accent/10 scale-[1.04]'
-                  : 'border-light-border text-light-muted hover:border-accent/50 hover:text-accent hover:-translate-y-0.5'
-              }`}
+              className={`aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all duration-200 ${form.isCustom
+                ? 'border-accent text-accent bg-accent/10 scale-[1.04]'
+                : 'border-light-border text-light-muted hover:border-accent/50 hover:text-accent hover:-translate-y-0.5'
+                }`}
             >
               <FiPlus size={24} />
               <span className="text-xs font-medium">Custom</span>
@@ -252,7 +257,7 @@ export default function AddCrop() {
         </div>
 
         {/* Current stage */}
-        <div className="rounded-3xl border border-light-border bg-white p-4">
+        <div className="rounded-3xl border border-light-border bg-white p-4 mb-3">
           <p className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold mb-3">
             Current stage
           </p>
@@ -264,11 +269,10 @@ export default function AddCrop() {
                   key={stage}
                   type="button"
                   onClick={() => setForm({ ...form, currentStage: stage })}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                    sel
-                      ? 'bg-accent text-white border-accent'
-                      : 'bg-transparent text-light-text border-light-border hover:border-accent/60'
-                  }`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${sel
+                    ? 'bg-accent text-white border-accent'
+                    : 'bg-transparent text-light-text border-light-border hover:border-accent/60'
+                    }`}
                 >
                   {stage}
                 </button>
@@ -278,7 +282,7 @@ export default function AddCrop() {
         </div>
 
         {/* Area % */}
-        <div className="rounded-3xl border border-light-border bg-white p-4">
+        <div className="rounded-3xl border border-light-border bg-white p-4 mb-3">
           <p className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold mb-2">
             Area % of farm
           </p>
@@ -299,7 +303,7 @@ export default function AddCrop() {
         </div>
 
         {/* Dates + Field */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
           <div className="rounded-3xl border border-light-border bg-white p-4">
             <label className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold block mb-2">
               Planting date
@@ -325,7 +329,7 @@ export default function AddCrop() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-light-border bg-white p-4">
+        <div className="rounded-3xl border border-light-border bg-white p-4 mb-3">
           <label className="text-light-muted text-[11px] uppercase tracking-[0.2em] font-semibold block mb-2">
             Field (optional)
           </label>
@@ -343,7 +347,7 @@ export default function AddCrop() {
           type="button"
           onClick={handleAiAssist}
           disabled={aiLoading}
-          className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full border border-accent/40 text-accent font-semibold text-sm hover:bg-accent hover:text-white transition-all disabled:opacity-60"
+          className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full border border-accent/40 text-accent font-semibold text-sm hover:bg-accent hover:text-white transition-all disabled:opacity-60 mb-3"
         >
           <FiZap size={16} />
           {aiLoading ? 'AI analyzing…' : 'AI: estimate harvest, growth stages & watering'}
@@ -404,10 +408,11 @@ export default function AddCrop() {
 
         <button
           type="submit"
-          className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-accent text-white font-semibold text-base hover:shadow-[0_10px_28px_rgba(22,163,74,0.4)] hover:-translate-y-0.5 transition-all"
+          disabled={saving}
+          className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-accent text-white font-semibold text-base hover:shadow-[0_10px_28px_rgba(22,163,74,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
         >
           <FiSave size={18} />
-          Save Crop
+          {saving ? 'Saving…' : 'Save Crop'}
         </button>
       </form>
 

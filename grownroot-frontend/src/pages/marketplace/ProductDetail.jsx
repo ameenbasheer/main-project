@@ -1,27 +1,76 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheckCircle, FiShoppingCart, FiZap } from 'react-icons/fi';
-import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
+import { useApp } from '../../context/AppContext';
+import { productApi } from '../../services/api';
 import { DecorativeCircle } from '../../components/common/DecorativeElements';
+import PaymentModal from '../../components/payment/PaymentModal';
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { products } = useApp();
   const { isAuthenticated } = useAuth();
+  const { addToCart, placeOrder } = useApp();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
-  const product = products.find(p => p.id === Number(id));
+  const [showPayment, setShowPayment] = useState(false);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    // Reset to the loading state each time the product id changes.
+    setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
+    productApi
+      .get(id)
+      .then((p) => { if (active) setProduct(p); })
+      .catch(() => { if (active) setProduct(null); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id]);
 
   const requireAuth = (action) => {
     if (!isAuthenticated) {
       navigate(`/login?redirect=/marketplace/${id}`);
       return;
     }
-    // User is logged in — show success feedback
-    setShowSuccess(action);
-    setTimeout(() => setShowSuccess(false), 2000);
+    if (action === 'cart') {
+      addToCart(product, 1);
+      setShowSuccess('cart');
+      setTimeout(() => setShowSuccess(false), 2000);
+    } else if (action === 'buy') {
+      // "Buy Now" collects payment first, then places an order for just this product.
+      setShowPayment(true);
+    }
   };
+
+  const handlePaymentSuccess = (payment) => {
+    // "Buy Now" places an order for just this product, leaving the cart alone.
+    placeOrder(
+      [
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          unit: product.unit || '',
+          image: product.image || null,
+          farmer: product.farmer || '',
+          quantity: 1,
+        },
+      ],
+      payment
+    );
+    setShowPayment(false);
+    navigate('/orders');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <p className="text-dark-muted text-sm">Loading product…</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -56,7 +105,7 @@ export default function ProductDetail() {
               <span className="text-accent text-4xl font-serif block mb-3">&ldquo;&rdquo;</span>
               <h3 className="text-white font-bold text-lg">{product.name}</h3>
               <p className="text-accent font-semibold mb-3">
-                ${product.price.toFixed(2)}{product.unit}
+                ₹{product.price.toFixed(2)}{product.unit}
               </p>
               <p className="text-dark-muted text-sm leading-relaxed italic mb-3">
                 &ldquo;Fresh from my family farm to your table. We use only organic methods
@@ -145,6 +194,14 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {showPayment && (
+        <PaymentModal
+          amount={product.price}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+        />
+      )}
     </div>
   );
 }

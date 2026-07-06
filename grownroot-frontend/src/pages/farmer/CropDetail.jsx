@@ -26,23 +26,25 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-const CARD = 'rounded-3xl border border-light-border bg-white p-5';
+// Glassmorphism surfaces — translucent, blurred, soft inner highlight.
+const CARD =
+  'rounded-3xl border border-white/60 bg-white/45 backdrop-blur-xl p-5 shadow-[0_8px_32px_-8px_rgba(20,80,40,0.18)] ring-1 ring-white/40';
 const INPUT =
-  'w-full bg-white border border-light-border focus:border-accent rounded-xl px-3 py-2 text-light-text text-sm outline-none placeholder:text-light-muted';
+  'w-full bg-white/50 backdrop-blur border border-white/60 focus:border-accent focus:bg-white/70 rounded-xl px-3 py-2 text-light-text text-sm outline-none placeholder:text-light-muted transition';
 
 function StageProgress({ current }) {
   const idx = Math.max(0, CROP_STAGES.indexOf(current));
   const pct = ((idx + 1) / CROP_STAGES.length) * 100;
   return (
     <div>
-      <div className="flex items-center justify-between text-xs text-light-muted mb-1.5">
+      <div className="flex items-center justify-between text-xs text-light-muted mb-2">
         <span>{CROP_STAGES[0]}</span>
         <span className="text-accent font-semibold">{current}</span>
         <span>{CROP_STAGES[CROP_STAGES.length - 1]}</span>
       </div>
-      <div className="h-2 bg-light-border rounded-full overflow-hidden">
+      <div className="h-2 bg-white/40 backdrop-blur rounded-full overflow-hidden ring-1 ring-white/50">
         <div
-          className="h-full bg-gradient-to-r from-accent/60 to-accent transition-all duration-500"
+          className="h-full bg-gradient-to-r from-accent/70 to-accent shadow-[0_0_12px_rgba(22,163,74,0.5)] transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -70,7 +72,7 @@ function EditPanel({ crop, onSave, onCancel }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="text-light-muted text-xs block mb-1.5">Name</label>
+          <label className="text-light-muted text-xs block mb-2">Name</label>
           <input
             type="text"
             value={form.name}
@@ -79,7 +81,7 @@ function EditPanel({ crop, onSave, onCancel }) {
           />
         </div>
         <div>
-          <label className="text-light-muted text-xs block mb-1.5">Area %</label>
+          <label className="text-light-muted text-xs block mb-2">Area %</label>
           <input
             type="number"
             min="0"
@@ -90,7 +92,7 @@ function EditPanel({ crop, onSave, onCancel }) {
           />
         </div>
         <div>
-          <label className="text-light-muted text-xs block mb-1.5">Planting date</label>
+          <label className="text-light-muted text-xs block mb-2">Planting date</label>
           <input
             type="date"
             value={form.plantingDate}
@@ -99,7 +101,7 @@ function EditPanel({ crop, onSave, onCancel }) {
           />
         </div>
         <div>
-          <label className="text-light-muted text-xs block mb-1.5">Harvesting date</label>
+          <label className="text-light-muted text-xs block mb-2">Harvesting date</label>
           <input
             type="date"
             value={form.harvestingDate}
@@ -110,8 +112,8 @@ function EditPanel({ crop, onSave, onCancel }) {
       </div>
 
       <div>
-        <label className="text-light-muted text-xs block mb-1.5">Current stage</label>
-        <div className="flex flex-wrap gap-1.5">
+        <label className="text-light-muted text-xs block mb-2">Current stage</label>
+        <div className="flex flex-wrap gap-2">
           {CROP_STAGES.map((stage) => {
             const sel = form.currentStage === stage;
             return (
@@ -119,11 +121,10 @@ function EditPanel({ crop, onSave, onCancel }) {
                 key={stage}
                 type="button"
                 onClick={() => setForm({ ...form, currentStage: stage })}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  sel
-                    ? 'bg-accent text-white'
-                    : 'bg-white text-light-text border border-light-border hover:border-accent/40'
-                }`}
+                className={`px-3 py-2 rounded-full text-xs font-medium transition ${sel
+                  ? 'bg-accent text-white'
+                  : 'bg-white text-light-text border border-light-border hover:border-accent/40'
+                  }`}
               >
                 {stage}
               </button>
@@ -155,7 +156,7 @@ function EditPanel({ crop, onSave, onCancel }) {
                 : '',
             })
           }
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-semibold hover:shadow-[0_8px_24px_rgba(22,163,74,0.4)] transition"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-white text-xs font-semibold hover:shadow-[0_8px_24px_rgba(22,163,74,0.4)] transition"
         >
           <FiSave size={12} /> Save
         </button>
@@ -263,8 +264,8 @@ export default function CropDetail() {
       </Link>
 
       {/* Header */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-        <div className="md:col-span-1 rounded-3xl overflow-hidden border border-light-border h-56 md:h-full bg-accent/10 relative">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-5">
+        <div className="md:col-span-1 rounded-3xl overflow-hidden border border-light-border h-56 md:h-85 bg-accent/10 relative">
           {crop.image ? (
             <img src={crop.image} alt={crop.name} className="w-full h-full object-cover" />
           ) : (
@@ -277,7 +278,7 @@ export default function CropDetail() {
           </div>
         </div>
 
-        <div className="md:col-span-2 rounded-3xl border border-light-border bg-white p-5 flex flex-col">
+        <div className="md:col-span-2 rounded-3xl border border-light-border bg-white p-4 flex flex-col">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
               <p className="text-light-muted text-xs uppercase tracking-wider">Crop</p>
@@ -287,7 +288,7 @@ export default function CropDetail() {
               <button
                 type="button"
                 onClick={() => setEditing((e) => !e)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-accent/15 border border-accent/40 text-accent text-xs font-medium hover:bg-accent hover:text-white transition"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-accent/15 border border-accent/40 text-accent text-xs font-medium hover:bg-accent hover:text-white transition"
               >
                 <FiEdit3 size={12} /> Edit
               </button>
@@ -327,7 +328,7 @@ export default function CropDetail() {
             <button
               type="button"
               onClick={advanceStage}
-              className="self-start mt-4 inline-flex items-center gap-1.5 text-accent text-xs hover:underline"
+              className="self-start mt-4 inline-flex items-center gap-2 text-accent text-xs hover:underline"
             >
               <FiCheck size={12} /> Mark stage complete
             </button>
@@ -341,10 +342,10 @@ export default function CropDetail() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {/* Dates */}
         <div className={CARD}>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex  gap-2 mb-3">
             <FiCalendar className="text-accent" size={16} />
             <p className="text-light-text text-sm font-semibold">Important dates</p>
           </div>
@@ -365,8 +366,8 @@ export default function CropDetail() {
 
         {/* AI suggestions */}
         <div className={CARD}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex  justify-between mb-3">
+            <div className="flex  gap-2">
               <FiZap className="text-accent" size={16} />
               <p className="text-light-text text-sm font-semibold">AI suggestions</p>
             </div>
@@ -386,7 +387,7 @@ export default function CropDetail() {
           )}
           {(aiTips.length > 0 ? aiTips : crop.aiSuggestion ? crop.aiSuggestion.split(' • ') : []).map((tip, i) => (
             <div key={i} className="flex gap-2 mb-2 last:mb-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0" />
               <p className="text-light-text text-xs leading-relaxed">{tip}</p>
             </div>
           ))}
@@ -394,19 +395,19 @@ export default function CropDetail() {
 
         {/* Expenses */}
         <div className={CARD}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex justify-between mb-3">
+            <div className="flex gap-2">
               <FiTrendingDown className="text-red-500" size={16} />
               <p className="text-light-text text-sm font-semibold">Expenses</p>
             </div>
             <p className="text-red-500 text-sm font-bold">₹{totals.spent}</p>
           </div>
-          <ul className="space-y-1.5 mb-3 max-h-44 overflow-y-auto">
+          <ul className="space-y-2 mb-3 max-h-44 overflow-y-auto">
             {(crop.expenses || []).length === 0 && (
               <li className="text-light-muted text-xs">No expenses yet.</li>
             )}
             {(crop.expenses || []).map((e) => (
-              <li key={e.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-light-bg">
+              <li key={e.id} className="flex items-center justify-between text-xs py-2 px-2 rounded-lg bg-light-bg">
                 <div>
                   <p className="text-light-text">{e.label}</p>
                   <p className="text-light-muted text-[10px]">{formatDate(e.date)}</p>
@@ -415,26 +416,26 @@ export default function CropDetail() {
               </li>
             ))}
           </ul>
-          <form onSubmit={submitExpense} className="grid grid-cols-12 gap-1.5">
+          <form onSubmit={submitExpense} className="grid grid-cols-12 gap-2">
             <input
               type="text"
               placeholder="Label"
               value={expenseForm.label}
               onChange={(e) => setExpenseForm({ ...expenseForm, label: e.target.value })}
-              className="col-span-5 bg-white border border-light-border focus:border-accent rounded-lg px-2.5 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
+              className="col-span-5 bg-white border border-light-border focus:border-accent rounded-lg px-3 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
             />
             <input
               type="number"
               placeholder="₹"
               value={expenseForm.amount}
               onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-2.5 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
+              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-3 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
             />
             <input
               type="date"
               value={expenseForm.date}
               onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
-              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-1.5 py-2 text-light-text text-xs outline-none"
+              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-2 py-2 text-light-text text-xs outline-none"
             />
             <button
               type="submit"
@@ -448,19 +449,19 @@ export default function CropDetail() {
 
         {/* Sales */}
         <div className={CARD}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex justify-between mb-3">
+            <div className="flex gap-2">
               <FiTrendingUp className="text-accent" size={16} />
               <p className="text-light-text text-sm font-semibold">Sales</p>
             </div>
             <p className="text-accent text-sm font-bold">₹{totals.earned}</p>
           </div>
-          <ul className="space-y-1.5 mb-3 max-h-44 overflow-y-auto">
+          <ul className="space-y-2 mb-3 max-h-44 overflow-y-auto">
             {(crop.sales || []).length === 0 && (
               <li className="text-light-muted text-xs">No sales yet.</li>
             )}
             {(crop.sales || []).map((e) => (
-              <li key={e.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-light-bg">
+              <li key={e.id} className="flex items-center justify-between text-xs py-2 px-2 rounded-lg bg-light-bg">
                 <div>
                   <p className="text-light-text">{e.label}</p>
                   <p className="text-light-muted text-[10px]">{formatDate(e.date)}</p>
@@ -469,26 +470,26 @@ export default function CropDetail() {
               </li>
             ))}
           </ul>
-          <form onSubmit={submitSale} className="grid grid-cols-12 gap-1.5">
+          <form onSubmit={submitSale} className="grid grid-cols-12 gap-2">
             <input
               type="text"
               placeholder="Buyer / channel"
               value={saleForm.label}
               onChange={(e) => setSaleForm({ ...saleForm, label: e.target.value })}
-              className="col-span-5 bg-white border border-light-border focus:border-accent rounded-lg px-2.5 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
+              className="col-span-5 bg-white border border-light-border focus:border-accent rounded-lg px-3 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
             />
             <input
               type="number"
               placeholder="₹"
               value={saleForm.amount}
               onChange={(e) => setSaleForm({ ...saleForm, amount: e.target.value })}
-              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-2.5 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
+              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-3 py-2 text-light-text text-xs outline-none placeholder:text-light-muted"
             />
             <input
               type="date"
               value={saleForm.date}
               onChange={(e) => setSaleForm({ ...saleForm, date: e.target.value })}
-              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-1.5 py-2 text-light-text text-xs outline-none"
+              className="col-span-3 bg-white border border-light-border focus:border-accent rounded-lg px-2 py-2 text-light-text text-xs outline-none"
             />
             <button
               type="submit"
@@ -502,7 +503,7 @@ export default function CropDetail() {
 
         {/* Profit report */}
         <div className={CARD}>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex gap-2 mb-3">
             <FiDollarSign className="text-accent" size={16} />
             <p className="text-light-text text-sm font-semibold">Profit report</p>
           </div>

@@ -4,6 +4,16 @@ import { FiSave, FiArrowLeft, FiUploadCloud } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { DecorativeCircle } from '../../components/common/DecorativeElements';
 
+// Read a File into a base64 data URL the backend stores in the product's `image` field.
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read the image file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AddProduct() {
   const [form, setForm] = useState({
     name: '',
@@ -18,16 +28,36 @@ export default function AddProduct() {
   });
   const { addProduct } = useApp();
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addProduct({ ...form, price: parseFloat(form.price), image: null });
-    navigate('/marketplace');
+    setError('');
+    setSaving(true);
+    try {
+      const image = imageFile ? await fileToDataUrl(imageFile) : null;
+      await addProduct({ ...form, price: parseFloat(form.price), image });
+      navigate('/marketplace');
+    } catch (err) {
+      setError(err.message || 'Could not publish product. Please try again.');
+      setSaving(false);
+    }
   };
 
   return (
@@ -59,7 +89,7 @@ export default function AddProduct() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
           {/* Left content */}
           <div>
-            <div className="border-l-2 border-accent pl-4 mb-4">
+            <div className="border-accent pl-4 mb-4">
               <p className="text-dark-text text-sm font-medium">
                 Complete the form on the right to publish.
               </p>
@@ -70,12 +100,26 @@ export default function AddProduct() {
               Organic items get a verified badge automatically.
             </p>
 
-            {/* Image upload placeholder */}
-            <div className="img-showcase mt-5 h-52 bg-gradient-to-br from-accent/5 to-primary/5 flex items-center justify-center cursor-pointer">
-              <div className="text-center">
-                <FiUploadCloud size={36} className="text-accent/60 mx-auto mb-2" />
-                <p className="text-dark-muted text-xs">Upload product photos</p>
-              </div>
+            {/* Image upload */}
+            <div
+              className="img-showcase mt-5 h-52 bg-gradient-to-br from-accent/5 to-primary/5 flex items-center justify-center cursor-pointer overflow-hidden"
+              onClick={() => document.getElementById('product-image-upload').click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Product preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center">
+                  <FiUploadCloud size={36} className="text-accent/60 mx-auto mb-2" />
+                  <p className="text-dark-muted text-xs">Upload product photos</p>
+                </div>
+              )}
+              <input
+                id="product-image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
             </div>
           </div>
 
@@ -123,7 +167,7 @@ export default function AddProduct() {
               <div className="glass-card p-4">
                 <label className="text-dark-muted text-xs block mb-2">Set price</label>
                 <div className="flex items-center gap-2">
-                  <span className="text-accent">$</span>
+                  <span className="text-accent">₹</span>
                   <input
                     type="number"
                     name="price"
@@ -175,7 +219,7 @@ export default function AddProduct() {
               </div>
             </div>
 
-            <div className="glass-card p-4 flex items-center gap-3">
+            <div className="glass-card p-4 flex items-center gap-3 mt-3 mb-3">
               <input
                 type="checkbox"
                 name="organic"
@@ -186,12 +230,17 @@ export default function AddProduct() {
               <label className="text-dark-text text-sm">This product is organically grown</label>
             </div>
 
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+
             <button
               type="submit"
-              className="pill-btn w-full flex items-center justify-center gap-2 !py-3 text-base"
+              disabled={saving}
+              className="pill-btn w-full flex items-center justify-center gap-2 !py-3 text-base disabled:opacity-60"
             >
               <FiSave size={18} />
-              Publish product
+              {saving ? 'Publishing…' : 'Publish product'}
             </button>
           </form>
         </div>

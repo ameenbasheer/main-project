@@ -13,6 +13,7 @@ import {
   FiCpu,
   FiActivity,
   FiTruck,
+  FiCheck,
 } from 'react-icons/fi';
 import { GiFarmer } from 'react-icons/gi';
 import { useAuth } from '../context/AuthContext';
@@ -48,6 +49,17 @@ const BUYER_HIGHLIGHTS = [
   { Icon: FiActivity, label: 'Save favorites & reorder fast' },
 ];
 
+// Password must meet every rule below before an account can be created.
+const PASSWORD_RULES = [
+  { id: 'length', label: 'At least 8 characters', test: (p) => p.length >= 8 },
+  { id: 'number', label: 'Contains a number', test: (p) => /\d/.test(p) },
+  {
+    id: 'special',
+    label: 'Contains a special character',
+    test: (p) => /[!@#$%^&*(),.?":{}|<>_[\]\\/;'`~+=-]/.test(p),
+  },
+];
+
 export default function RegisterPage() {
   const [role, setRole] = useState('farmer');
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -66,6 +78,10 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!PASSWORD_RULES.every((r) => r.test(formData.password))) {
+      setFormError('Password must be at least 8 characters and include a number and a special character.');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       setFormError('Passwords do not match');
       return;
@@ -259,6 +275,32 @@ export default function RegisterPage() {
                     {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                   </button>
                 </div>
+
+                {/* Live password requirements */}
+                {formData.password && (
+                  <ul className="mt-2 space-y-1">
+                    {PASSWORD_RULES.map((rule) => {
+                      const met = rule.test(formData.password);
+                      return (
+                        <li
+                          key={rule.id}
+                          className={`flex items-center gap-1.5 text-xs transition-colors ${
+                            met ? 'text-accent' : 'text-light-muted'
+                          }`}
+                        >
+                          <span
+                            className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
+                              met ? 'bg-accent text-white' : 'border border-light-border'
+                            }`}
+                          >
+                            {met && <FiCheck size={9} />}
+                          </span>
+                          {rule.label}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
 
               {/* Confirm Password */}

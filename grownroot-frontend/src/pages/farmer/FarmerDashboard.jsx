@@ -18,6 +18,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import PieChart3D, { PIE_PALETTE } from '../../components/common/PieChart3D';
+import TodayPlan from '../../components/dashboard/TodayPlan';
 
 const STAGE_COLORS = {
   'Seed prep': 'bg-[#EFE9D8] text-[#6B5D4E] border border-[#E8DCC4]',
@@ -298,6 +299,9 @@ export default function FarmerDashboard() {
           </div>
         </div>
       </section>
+
+      {/* AI: today's plan per crop */}
+      <TodayPlan />
 
       {/* Section tiles — primary navigation */}
       <section className="mb-5">
