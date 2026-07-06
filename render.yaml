@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: grownroot-backend
+    runtime: node
+    rootDir: grownroot-backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_VISION_MODEL
+        value: meta-llama/llama-4-scout-17b-16e-instruct
+      # The following are secrets — set their values in the Render dashboard.
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CLIENT_URL
+        sync: false
