@@ -9,7 +9,7 @@ export default function DashboardLayout() {
       {/* Outer container kept identical to MainLayout so the Navbar/header matches
           across pages. Side gutters live on <main> below, not here, so they don't
           inset the header. */}
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 lg:px-20 py-4 md:py-6">
+      <div className="max-w-[1400px] mx-auto px-1 sm:px-1.5 md:px-2 lg:px-3 py-4 md:py-6">
         <Navbar />
         <main className="relative z-10 max-w-7xl mx-auto px-[1.5rem]! sm:px-[2.5rem]! md:px-[4rem]! lg:px-[6rem]! py-5">
           <PageTransition>

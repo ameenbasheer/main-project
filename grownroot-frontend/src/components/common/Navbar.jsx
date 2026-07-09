@@ -23,14 +23,15 @@ export default function Navbar() {
     `nav-tab !px-3 ${isActive ? 'active' : ''}`;
 
   return (
-    <nav className="w-full flex items-center justify-between pb-3 relative z-10">
-      <Link to="/" className="flex items-center">
+    <nav className="w-full flex items-center gap-2 pb-3 relative z-10">
+      {/* Left: Logo */}
+      <Link to="/" className="flex items-center shrink-0">
         <img src={logo} alt="GrownRoot" className="h-15 w-auto object-contain" />
       </Link>
 
-      {/* Public navigation links (hidden for admins) */}
+      {/* Middle: Public navigation links (hidden for admins) */}
       {!isAdmin && (
-        <div className="hidden md:flex items-center gap-2 bg-dark-surface/40 border border-dark-border rounded-full p-1">
+        <div className="hidden md:flex items-center gap-2 bg-dark-surface/40 border border-dark-border rounded-full p-1 mx-auto">
           <NavLink to="/marketplace" className={tabClass}>
             <FiShoppingBag size={15} />
             Marketplace
@@ -48,7 +49,8 @@ export default function Navbar() {
         </div>
       )}
 
-      <div className="flex items-center gap-3">
+      {/* Right: Icons and Profile */}
+      <div className="flex items-center gap-1 ml-auto shrink-0">
         {/* Mobile nav links (hidden for admins) */}
         {!isAdmin && (
           <div className="flex md:hidden items-center gap-1 bg-dark-surface/40 border border-dark-border rounded-full p-1">

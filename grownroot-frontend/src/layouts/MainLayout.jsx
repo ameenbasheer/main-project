@@ -5,7 +5,7 @@ import PageTransition from '../components/common/PageTransition';
 export default function MainLayout() {
   return (
     <div className="light-theme min-h-screen bg-gradient-dark relative">
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 lg:px-20 py-4 md:py-6">
+      <div className="max-w-[1400px] mx-auto px-1 sm:px-1.5 md:px-2 lg:px-3 py-4 md:py-6">
         <Navbar />
         <main className="pb-10">
           <PageTransition>

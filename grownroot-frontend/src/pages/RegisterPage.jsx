@@ -14,6 +14,7 @@ import {
   FiActivity,
   FiTruck,
   FiCheck,
+  FiLoader,
 } from 'react-icons/fi';
 import { GiFarmer } from 'react-icons/gi';
 import { useAuth } from '../context/AuthContext';
@@ -66,7 +67,7 @@ export default function RegisterPage() {
   const [formError, setFormError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { register } = useAuth();
+  const { register, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const highlights = role === 'farmer' ? FARMER_HIGHLIGHTS : BUYER_HIGHLIGHTS;
@@ -78,6 +79,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+
     if (!PASSWORD_RULES.every((r) => r.test(formData.password))) {
       setFormError('Password must be at least 8 characters and include a number and a special character.');
       return;
@@ -211,7 +214,7 @@ export default function RegisterPage() {
               })}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isLoading}>
               {/* Name */}
               <div>
                 <label className="text-light-text text-xs font-medium block mb-1">
@@ -339,10 +342,20 @@ export default function RegisterPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full h-[50px] mt-4 flex items-center justify-center gap-2 py-3 rounded-5 bg-accent text-white font-semibold text-sm hover:bg-accent/90 hover:shadow-[0_8px_24px_rgba(22,163,74,0.35)] transition group"
+                disabled={isLoading}
+                className="w-full h-[50px] mt-4 flex items-center justify-center gap-2 py-3 rounded-5 bg-accent text-white font-semibold text-sm hover:bg-accent/90 hover:shadow-[0_8px_24px_rgba(22,163,74,0.35)] transition group disabled:cursor-not-allowed disabled:opacity-80"
               >
-                Create {role === 'farmer' ? 'Farmer' : 'Buyer'} account
-                <FiArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                {isLoading ? (
+                  <>
+                    <FiLoader size={14} className="animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create {role === 'farmer' ? 'Farmer' : 'Buyer'} account
+                    <FiArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                  </>
+                )}
               </button>
 
               {/* Login link */}

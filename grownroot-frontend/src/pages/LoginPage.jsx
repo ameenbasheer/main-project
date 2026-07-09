@@ -11,6 +11,7 @@ import {
   FiCloud,
   FiShoppingBag,
   FiArrowLeft,
+  FiLoader,
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
@@ -30,13 +31,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const { login, error } = useAuth();
+  const { login, error, isLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+
     try {
       const user = await login(email, password);
       if (redirectTo) {
@@ -128,7 +131,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" aria-busy={isLoading}>
               {/* Email */}
               <div>
                 <label className="text-light-text text-xs font-medium block mb-2">
@@ -201,10 +204,20 @@ export default function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full h-[50px] flex items-center justify-center gap-2 py-3 rounded-5 bg-accent text-white font-semibold text-sm hover:bg-accent/90 hover:shadow-[0_8px_24px_rgba(22,163,74,0.35)] transition group"
+                disabled={isLoading}
+                className="w-full h-[50px] flex items-center justify-center gap-2 py-3 rounded-5 bg-accent text-white font-semibold text-sm hover:bg-accent/90 hover:shadow-[0_8px_24px_rgba(22,163,74,0.35)] transition group disabled:cursor-not-allowed disabled:opacity-80"
               >
-                Sign in
-                <FiArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                {isLoading ? (
+                  <>
+                    <FiLoader size={14} className="animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <FiArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                  </>
+                )}
               </button>
 
               {/* Register link */}
