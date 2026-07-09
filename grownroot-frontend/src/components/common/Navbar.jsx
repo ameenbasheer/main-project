@@ -23,34 +23,39 @@ export default function Navbar() {
     `nav-tab !px-3 ${isActive ? 'active' : ''}`;
 
   return (
-    <nav className="w-full flex items-center gap-2 pb-3 relative z-10">
+    <nav className="w-full flex items-center pb-3 relative z-10">
       {/* Left: Logo */}
       <Link to="/" className="flex items-center shrink-0">
         <img src={logo} alt="GrownRoot" className="h-15 w-auto object-contain" />
       </Link>
 
-      {/* Middle: Public navigation links (hidden for admins) */}
+      {/* Middle: Public navigation links (hidden for admins) - centered */}
       {!isAdmin && (
-        <div className="hidden md:flex items-center gap-2 bg-dark-surface/40 border border-dark-border rounded-full p-1 mx-auto">
-          <NavLink to="/marketplace" className={tabClass}>
-            <FiShoppingBag size={15} />
-            Marketplace
-          </NavLink>
-          <NavLink to="/weather" className={tabClass}>
-            <FiCloudRain size={15} />
-            Weather
-          </NavLink>
-          {isAuthenticated && user?.role === 'farmer' && (
-            <NavLink to="/dashboard" className={tabClass}>
-              <FiGrid size={15} />
-              Dashboard
+        <div className="hidden md:flex flex-1 items-center justify-center gap-2">
+          <div className="flex items-center gap-2 bg-dark-surface/40 border border-dark-border rounded-full p-1">
+            <NavLink to="/marketplace" className={tabClass}>
+              <FiShoppingBag size={15} />
+              Marketplace
             </NavLink>
-          )}
+            <NavLink to="/weather" className={tabClass}>
+              <FiCloudRain size={15} />
+              Weather
+            </NavLink>
+            {isAuthenticated && user?.role === 'farmer' && (
+              <NavLink to="/dashboard" className={tabClass}>
+                <FiGrid size={15} />
+                Dashboard
+              </NavLink>
+            )}
+          </div>
         </div>
       )}
 
+      {/* Spacer when nav is hidden (for admins) */}
+      {isAdmin && <div className="flex-1" />}
+
       {/* Right: Icons and Profile */}
-      <div className="flex items-center gap-1 ml-auto shrink-0">
+      <div className="flex items-center gap-1 shrink-0">
         {/* Mobile nav links (hidden for admins) */}
         {!isAdmin && (
           <div className="flex md:hidden items-center gap-1 bg-dark-surface/40 border border-dark-border rounded-full p-1">

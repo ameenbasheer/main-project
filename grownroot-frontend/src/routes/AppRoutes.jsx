@@ -62,11 +62,11 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/:id" element={<ProductDetail />} />
-        {/* WeatherPage self-manages no horizontal gutter, so mirror DashboardLayout's
-            <main> wrapper here (MainLayout's <main> has none). Keep these classes in
-            sync with DashboardLayout.jsx. The `!` overrides the global `*{padding:0}` reset. */}
+        {/* WeatherPage self-manages no horizontal gutter; MainLayout's outer
+            container supplies the side gutters, so this wrapper only narrows the
+            content column (max-w-7xl) and adds vertical rhythm. */}
         <Route path="/weather" element={
-          <main className="max-w-7xl mx-auto px-[1.5rem]! sm:px-[2.5rem]! md:px-[4rem]! lg:px-[6rem]! py-5">
+          <main className="max-w-7xl mx-auto py-5">
             <WeatherPage />
           </main>
         } />

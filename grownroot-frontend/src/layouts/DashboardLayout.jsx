@@ -6,12 +6,13 @@ import AskGrownRoot from '../components/dashboard/AskGrownRoot';
 export default function DashboardLayout() {
   return (
     <div className="light-theme min-h-screen bg-gradient-dark relative">
-      {/* Outer container kept identical to MainLayout so the Navbar/header matches
-          across pages. Side gutters live on <main> below, not here, so they don't
-          inset the header. */}
-      <div className="max-w-[1400px] mx-auto px-1 sm:px-1.5 md:px-2 lg:px-3 py-4 md:py-6">
+      {/* Navbar spans full width */}
+      <div className="w-screen px-1 sm:px-1.5 md:px-2 px-3 py-3 md:py-6 border-b border-dark-border">
         <Navbar />
-        <main className="relative z-10 max-w-7xl mx-auto px-[1.5rem]! sm:px-[2.5rem]! md:px-[4rem]! lg:px-[6rem]! py-5">
+      </div>
+      {/* Content with padding */}
+      <div className="max-w-[1400px] mx-auto px-5 sm:px-1.5 md:px-2 lg:px-3">
+        <main className="relative z-10 max-w-7xl mx-auto py-5">
           <PageTransition>
             <Outlet />
           </PageTransition>
