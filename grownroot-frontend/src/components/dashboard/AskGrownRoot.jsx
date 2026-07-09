@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FiMessageSquare, FiX, FiSend, FiZap, FiLoader } from 'react-icons/fi';
+import { FiMessageCircle, FiX, FiSend, FiZap, FiLoader } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { aiApi } from '../../services/api';
 
@@ -62,7 +62,7 @@ export default function AskGrownRoot() {
         aria-label="Ask GrownRoot AI"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#2D5A3D] to-[#1F4530] text-white grid place-items-center shadow-[0_8px_24px_rgba(45,90,61,0.35)] hover:scale-105 transition-transform"
       >
-        {open ? <FiX size={22} /> : <FiMessageSquare size={22} />}
+        {open ? <FiX size={22} /> : <FiMessageCircle size={22} />}
       </button>
 
       {/* Chat panel */}

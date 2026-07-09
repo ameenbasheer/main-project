@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiCheckCircle, FiShoppingCart, FiZap } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiShoppingCart, FiZap, FiMapPin } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
 import { productApi } from '../../services/api';
@@ -99,52 +99,67 @@ export default function ProductDetail() {
       <section className="section-band-green py-5 mb-5">
         <DecorativeCircle size="lg" className="-top-32 right-1/3 opacity-25 !border-white/25" />
         <div className="relative z-10 max-w-[1400px] mx-auto px-5 py-5">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            {/* Left: Farmer quote card */}
-            <div className="glass-card p-5 text-center">
-              <span className="text-accent text-4xl font-serif block mb-3">&ldquo;&rdquo;</span>
-              <h3 className="text-white font-bold text-lg">{product.name}</h3>
-              <p className="text-accent font-semibold mb-3">
-                ₹{product.price.toFixed(2)}{product.unit}
-              </p>
-              <p className="text-dark-muted text-sm leading-relaxed italic mb-3">
-                &ldquo;Fresh from my family farm to your table. We use only organic methods
-                and harvest at peak ripeness for the best flavor.&rdquo;
-              </p>
-              <p className="text-dark-text text-sm">
-                — {product.farmer}, Local Farmer
-              </p>
-            </div>
-
-            {/* Center: Product image */}
-            <div className="img-showcase h-72 lg:h-auto bg-gradient-to-br from-accent/15 to-primary/15 flex items-center justify-center">
-              <span className="text-7xl">🍅</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            {/* Left: Product image */}
+            <div className="img-showcase relative min-h-[18rem] lg:min-h-[24rem] bg-gradient-to-br from-accent/15 to-primary/15 flex items-center justify-center overflow-hidden">
+              {product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-7xl">🥬</span>
+              )}
+              <span className="absolute top-3 left-3 text-[11px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary text-white">
+                Fresh {product.freshness}%
+              </span>
+              {product.category && (
+                <span className="absolute top-3 right-3 text-[11px] font-medium px-2.5 py-1 rounded-full bg-black/35 text-white backdrop-blur">
+                  {product.category}
+                </span>
+              )}
             </div>
 
             {/* Right: Product details */}
-            <div>
-              <h1 className="text-3xl md:text-4xl font-light text-white">Product</h1>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
-                <span className="gradient-text">Details</span>
-              </h2>
+            <div className="flex flex-col">
+              <p className="text-accent text-xs uppercase tracking-[0.2em] font-semibold mb-2">
+                Product Details
+              </p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+                {product.name}
+              </h1>
+
+              <p className="text-accent font-bold text-2xl mt-3 mb-4">
+                ₹{product.price.toFixed(2)}
+                <span className="text-white/60 text-sm font-normal">{product.unit}</span>
+              </p>
 
               <p className="text-dark-muted text-sm leading-relaxed mb-5">
                 {product.description} Available in 1kg and 5kg packages.
               </p>
 
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                 <div className="flex items-center gap-3 text-dark-text text-sm">
-                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  <FiMapPin size={15} className="text-accent shrink-0" />
+                  {product.location}
+                </div>
+                <div className="flex items-center gap-3 text-dark-text text-sm">
+                  <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                   Freshness: {product.freshness}%
                 </div>
-                <div className="flex items-center gap-3 text-dark-text text-sm">
-                  <span className="w-2 h-2 rounded-full bg-accent" />
-                  Location: {product.location}
-                </div>
-                <div className="flex items-center gap-3 text-dark-text text-sm">
-                  <span className="w-2 h-2 rounded-full bg-accent" />
-                  Category: {product.category}
-                </div>
+              </div>
+
+              {/* Farmer quote */}
+              <div className="mt-auto glass-card p-4 relative overflow-hidden">
+                <span className="absolute -top-1 left-3 text-5xl text-accent/25 font-serif leading-none select-none">
+                  &ldquo;
+                </span>
+                <p className="text-dark-muted text-sm leading-relaxed italic pl-6 mb-2">
+                  Fresh from my family farm to your table. We use only organic methods
+                  and harvest at peak ripeness for the best flavor.
+                </p>
+                <p className="text-dark-text text-sm pl-6">— {product.farmer}, Local Farmer</p>
               </div>
             </div>
           </div>
@@ -153,7 +168,7 @@ export default function ProductDetail() {
 
       {/* Success toast */}
       {showSuccess && (
-        <div className="fixed top-5 right-5 z-50 glass-card border border-accent/40 px-5 py-3 flex items-center gap-3 animate-pulse">
+        <div className="fixed top-5 right-5 z-50 glass-card border border-accent/40 px-5 py-3 flex items-center gap-3 gr-pop">
           <FiCheckCircle className="text-accent" size={18} />
           <span className="text-dark-text text-sm">
             {showSuccess === 'buy' ? 'Order placed successfully!' : 'Added to cart!'}
@@ -163,23 +178,23 @@ export default function ProductDetail() {
 
       {/* Buy actions + badges — light section */}
       <div className="glass-card p-5">
-        <div className="flex flex-wrap items-center gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
           <button
             onClick={() => requireAuth('buy')}
-            className="pill-btn flex items-center gap-2 text-sm !py-3 !px-5"
+            className="pill-btn gr-press flex items-center justify-center gap-2 text-sm !py-3 !px-6"
           >
             <FiZap size={16} />
             Buy Now
           </button>
           <button
             onClick={() => requireAuth('cart')}
-            className="pill-btn flex items-center gap-2 text-sm !py-3 !px-5"
+            className="pill-btn gr-press flex items-center justify-center gap-2 text-sm !py-3 !px-6"
           >
             <FiShoppingCart size={16} />
             Add to Cart
           </button>
         </div>
-        <div className="flex flex-wrap items-center gap-5">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-4 border-t border-dark-border">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-accent" />
             <span className="text-dark-muted text-sm">100% Organic</span>
