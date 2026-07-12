@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiZap, FiDroplet, FiCalendar, FiTrendingUp, FiInfo, FiArrowLeft, FiWifiOff } from 'react-icons/fi';
+import { FiZap, FiDroplet, FiCalendar, FiTrendingUp, FiInfo, FiArrowLeft } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { aiApi } from '../../services/api';
-import { suggestCrops as suggestCropsLocal, SOIL_TYPES, SEASONS } from '../../services/aiService';
 
 const guessSeason = () => {
   const m = new Date().getMonth();
@@ -17,28 +16,27 @@ const FIELD_CARD =
   'rounded-2xl border border-light-border bg-white p-4 mt-2';
 
 export default function CropSuggestions() {
-  const { weather, farmerProfile } = useApp();
-  const [form, setForm] = useState({
-    soilType: farmerProfile?.soilType || 'loam',
-    season: guessSeason(),
-    region: farmerProfile?.location || '',
-  });
+  const { weather, farmerProfile, crops } = useApp();
+  const currentSeason = guessSeason();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
-  // 'ai' when Gemini answered, 'local' when we fell back to the rule-based engine.
   const [source, setSource] = useState(null);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const currentCropNames = crops.map((c) => c.name).filter(Boolean);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const inputs = { soilType: form.soilType, season: form.season, weather };
+    const inputs = {
+      soilType: farmerProfile?.soilType || 'unknown',
+      season: currentSeason,
+      weather,
+      location: farmerProfile?.location || 'unknown',
+      currentCrops: currentCropNames,
+    };
     try {
-      // Real AI first — richer, location-aware reasoning.
-      const data = await aiApi.suggestCrops({ ...inputs, location: form.region });
+      const data = await aiApi.suggestCrops(inputs);
+      console.info('[AI] suggestCrops response:', data);
       const list = (data.suggestions || []).map((s) => ({
         name: s.name,
         score: s.score,
@@ -48,11 +46,10 @@ export default function CropSuggestions() {
       }));
       setResults(list);
       setSource('ai');
-    } catch {
-      // Offline / no key / rate-limited — fall back to the local ranking engine.
-      const list = await suggestCropsLocal(inputs);
-      setResults(list);
-      setSource('local');
+    } catch (error) {
+      setResults([]);
+      setSource('ai');
+      console.error('AI crop suggestion failed:', error);
     } finally {
       setLoading(false);
     }
@@ -78,50 +75,30 @@ export default function CropSuggestions() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 relative z-10">
-        {/* Left: input form */}
+        {/* Left: saved farm data */}
         <form onSubmit={handleSubmit} className="lg:col-span-1 space-y-4">
           <div className={FIELD_CARD}>
-            <label className="text-light-muted text-xs block mb-2">Soil Type</label>
-            <select
-              name="soilType"
-              value={form.soilType}
-              onChange={handleChange}
-              className="w-full bg-transparent border-none outline-none text-light-text text-sm"
-            >
-              {SOIL_TYPES.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+            <p className="text-light-muted text-xs block mb-2">Saved soil type</p>
+            <p className="text-light-text text-sm">{farmerProfile?.soilType || 'Not set'}</p>
           </div>
 
           <div className={FIELD_CARD}>
-            <label className="text-light-muted text-xs block mb-2">Season</label>
-            <select
-              name="season"
-              value={form.season}
-              onChange={handleChange}
-              className="w-full bg-transparent border-none outline-none text-light-text text-sm"
-            >
-              {SEASONS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+            <p className="text-light-muted text-xs block mb-2">Current season</p>
+            <p className="text-light-text text-sm">{currentSeason}</p>
           </div>
 
           <div className={FIELD_CARD}>
-            <label className="text-light-muted text-xs block mb-2">Region (optional)</label>
-            <input
-              type="text"
-              name="region"
-              value={form.region}
-              onChange={handleChange}
-              placeholder="e.g. Green Valley"
-              className="w-full bg-transparent border-none outline-none text-light-text text-sm placeholder:text-light-muted"
-            />
+            <p className="text-light-muted text-xs block mb-2">Region</p>
+            <p className="text-light-text text-sm">{farmerProfile?.location || 'Not set'}</p>
+          </div>
+
+          <div className={FIELD_CARD}>
+            <p className="text-light-muted text-xs block mb-2">Current crops</p>
+            {currentCropNames.length > 0 ? (
+              <p className="text-light-text text-sm">{currentCropNames.join(', ')}</p>
+            ) : (
+              <p className="text-light-muted text-sm">No crops saved yet.</p>
+            )}
           </div>
 
           <div className={FIELD_CARD}>
@@ -143,7 +120,7 @@ export default function CropSuggestions() {
             className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-accent text-white font-semibold text-sm hover:shadow-[0_10px_28px_rgba(22,163,74,0.4)] transition-all disabled:opacity-60 mt-3"
           >
             <FiZap size={18} />
-            {loading ? 'Analyzing…' : 'Get AI Suggestions'}
+            {loading ? 'Analyzing…' : 'Suggest new crops'}
           </button>
         </form>
 
@@ -173,15 +150,9 @@ export default function CropSuggestions() {
                 <p className="text-light-muted text-xs uppercase tracking-wider">
                   Top {results.length} crops for your conditions
                 </p>
-                {source === 'ai' ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#DCEEDD] text-[#2D5A3D]">
-                    <FiZap size={10} /> AI-powered
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F5EFE0] text-[#6B5D4E]">
-                    <FiWifiOff size={10} /> Offline estimate
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#DCEEDD] text-[#2D5A3D]">
+                  <FiZap size={10} /> AI-powered
+                </span>
               </div>
               {results.map((item, idx) => (
                 <div key={item.name} className="rounded-2xl border border-light-border bg-white p-4">

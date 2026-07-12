@@ -65,6 +65,8 @@ export const api = {
 // Auth responses already expose `id` (the controller maps it), so no normalize.
 export const authApi = {
   register: (data) => api.post('/auth/register', data, { auth: false }),
+  verifyOtp: (data) => api.post('/auth/verify-otp', data, { auth: false }),
+  resendOtp: (data) => api.post('/auth/resend-otp', data, { auth: false }),
   login: (data) => api.post('/auth/login', data, { auth: false }),
   me: () => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/profile', data),

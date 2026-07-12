@@ -1,6 +1,7 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import generateToken from '../utils/generateToken.js';
 import User from '../models/User.js';
+import { sendOtpEmail } from '../services/emailService.js';
 
 // Strip sensitive fields before sending a user to the client
 const publicUser = (u) => ({
@@ -28,16 +29,101 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error('Email already registered');
   }
 
+  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+  const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
   const user = await User.create({
     name,
     email,
     password,
+    status: 'inactive',
+    otpCode,
+    otpExpires,
     role: role === 'buyer' || role === 'admin' ? role : 'farmer',
   });
 
+  try {
+    await sendOtpEmail(email, otpCode);
+  } catch (err) {
+    await User.findByIdAndDelete(user._id);
+    res.status(err.status || 500);
+    throw new Error(`Failed to send verification email: ${err.message}`);
+  }
+
   res.status(201).json({
+    email: user.email,
+    message: 'Verification code sent to your email. Please enter it to complete registration.',
+  });
+});
+
+// POST /api/auth/verify-otp
+export const verifyOtp = asyncHandler(async (req, res) => {
+  const { email, otpCode } = req.body;
+
+  if (!email || !otpCode) {
+    res.status(400);
+    throw new Error('Email and OTP code are required');
+  }
+
+  const user = await User.findOne({ email }).select('+otpCode +otpExpires');
+  if (!user) {
+    res.status(404);
+    throw new Error('No account found for that email');
+  }
+
+  if (!user.otpCode || !user.otpExpires || user.otpExpires < new Date()) {
+    res.status(400);
+    throw new Error('OTP code has expired. Please request a new one.');
+  }
+
+  if (user.otpCode !== otpCode.trim()) {
+    res.status(400);
+    throw new Error('Invalid OTP code');
+  }
+
+  user.status = 'active';
+  user.otpCode = undefined;
+  user.otpExpires = undefined;
+  await user.save();
+
+  res.json({
     user: publicUser(user),
     token: generateToken(user._id),
+  });
+});
+
+// POST /api/auth/resend-otp
+export const resendOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('Email is required to resend OTP');
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.status(404);
+    throw new Error('No account found for that email');
+  }
+
+  if (user.status === 'active') {
+    res.status(400);
+    throw new Error('This account is already verified. Please log in.');
+  }
+
+  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+  const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+  user.otpCode = otpCode;
+  user.otpExpires = otpExpires;
+  await user.save();
+
+  await sendOtpEmail(email, otpCode);
+
+  res.json({
+    email: user.email,
+    message: 'A new verification code has been sent to your email.',
   });
 });
 

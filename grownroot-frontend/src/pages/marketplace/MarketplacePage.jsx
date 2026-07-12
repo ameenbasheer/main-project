@@ -52,10 +52,10 @@ export default function MarketplacePage() {
       </section>
 
       {/* Product grid — light cream */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden px-5 md:px-5 lg:px-5">
         <DecorativeCircle size="xl" className="-bottom-40 -left-40 opacity-15" />
-        <div className="relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="relative z-10 max-w-[1900px] mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 py-5">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

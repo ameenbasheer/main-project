@@ -74,17 +74,19 @@ Give 1-3 tasks per crop. Order plans to match the input crop order.`;
 // body: { soilType, season, weather, location }
 // -> { suggestions: [{ name, score, reasons[], note, daysToHarvest }] }
 export const suggestCrops = asyncHandler(async (req, res) => {
-  const { soilType = '', season = '', weather = {}, location = '' } = req.body;
+  const { soilType = '', season = '', weather = {}, location = '', currentCrops = [] } = req.body;
 
   const prompt = `${PERSONA}
 
 Recommend the 5 best crops to START PLANTING NOW given these conditions.
 Favor crops realistically suited to the location and current weather window.
+Only recommend crops the farmer is not already growing.
 
 Location: ${location || 'unknown'}
 Soil type: ${soilType || 'unknown'}
 Season: ${season || 'unknown'}
 Weather: ${JSON.stringify(weatherSummary(weather))}
+Current crops: ${currentCrops.length ? currentCrops.join(', ') : 'none'}
 
 Return ONLY JSON shaped exactly like:
 {
@@ -99,6 +101,7 @@ Return ONLY JSON shaped exactly like:
 Order by score, highest first.`;
 
   const result = await generateJSON(prompt);
+  console.info('[AI] /api/ai/suggest-crops result:', result);
   res.json(result);
 });
 

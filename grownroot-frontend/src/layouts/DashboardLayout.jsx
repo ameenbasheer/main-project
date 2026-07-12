@@ -11,8 +11,8 @@ export default function DashboardLayout() {
         <Navbar />
       </div>
       {/* Content with padding */}
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-1.5 md:px-2 lg:px-3">
-        <main className="relative z-10 max-w-7xl mx-auto py-5">
+      <div className="max-w-[1900px] mx-auto px-5 sm:px-1.5 md:px-2 lg:px-3">
+        <main className="relative z-10 w-full py-5">
           <PageTransition>
             <Outlet />
           </PageTransition>

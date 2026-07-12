@@ -11,8 +11,20 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+// CORS: Accept localhost on any port in development
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || /^http:\/\/(localhost|127\.0\.0\.1):\d+/.test(origin) || process.env.CLIENT_URL === origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  credentials: true
+};
+
 // Core middleware
-app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '5mb' })); // generous limit for base64 images
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {

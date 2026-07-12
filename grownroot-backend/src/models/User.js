@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['farmer', 'buyer', 'admin'], default: 'farmer' },
     avatar: { type: String, default: null },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    otpCode: { type: String, select: false },
+    otpExpires: { type: Date },
     farmerProfile: { type: farmerProfileSchema, default: () => ({}) },
   },
   { timestamps: true }

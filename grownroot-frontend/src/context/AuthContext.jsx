@@ -43,10 +43,35 @@ export function AuthProvider({ children }) {
   const register = async (userData) => {
     dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     try {
-      const { user, token } = await authApi.register(userData);
+      const result = await authApi.register(userData);
+      // Registration now requires OTP verification before login.
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return result;
+    } catch (err) {
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: err.message });
+      throw err;
+    }
+  };
+
+  const verifyOtp = async (data) => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+    try {
+      const { user, token } = await authApi.verifyOtp(data);
       tokenStore.set(token);
-      dispatch({ type: AUTH_ACTIONS.REGISTER, payload: user });
+      dispatch({ type: AUTH_ACTIONS.LOGIN, payload: user });
       return user;
+    } catch (err) {
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: err.message });
+      throw err;
+    }
+  };
+
+  const resendOtp = async (data) => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+    try {
+      const result = await authApi.resendOtp(data);
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return result;
     } catch (err) {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: err.message });
       throw err;
@@ -70,7 +95,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, clearError, updateUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, verifyOtp, resendOtp, logout, clearError, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

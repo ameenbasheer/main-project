@@ -1,5 +1,7 @@
 import { FiSun, FiShield, FiCloudRain, FiShoppingBag } from 'react-icons/fi';
 import Card from '../common/Card';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const features = [
   {
@@ -25,6 +27,34 @@ const features = [
 ];
 
 export default function Features() {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+
+  const routeFor = (title) => {
+    switch (title) {
+      case 'Crop Management':
+        return '/dashboard/crops';
+      case 'Disease Detection':
+        return '/dashboard/disease';
+      case 'Weather Forecast':
+        // weather has a public page, but prefer farmer dashboard weather when farmer
+        return user?.role === 'farmer' ? '/dashboard/weather' : '/weather';
+      case 'Marketplace':
+        return '/marketplace';
+      default:
+        return '/';
+    }
+  };
+
+  const handleClick = (title) => {
+    const to = routeFor(title);
+    if (isAuthenticated) {
+      navigate(to);
+    } else {
+      // send user to login with redirect so they can be returned after sign-in
+      navigate(`/login?redirect=${encodeURIComponent(to)}`);
+    }
+  };
   return (
     <section className="py-20 relative pb-5 mb-5">
       <div className="text-center mb-10">
@@ -38,7 +68,13 @@ export default function Features() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature, i) => (
-          <Card key={i} hover className="text-center p-6 group cursor-pointer">
+          <Card
+            key={i}
+            hover
+            role="button"
+            onClick={() => handleClick(feature.title)}
+            className="text-center p-6 group cursor-pointer"
+          >
             <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-5 text-accent group-hover:bg-accent/20 transition-colors">
               {feature.icon}
             </div>

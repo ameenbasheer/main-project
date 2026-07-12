@@ -10,7 +10,7 @@ export default function MainLayout() {
         <Navbar />
       </div>
       {/* Content with padding */}
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-1.5 md:px-2 lg:px-3">
+      <div className="max-w-[1900px] mx-auto px-5 sm:px-1.5 md:px-2 lg:px-3">
         <main className="pb-10">
           <PageTransition>
             <Outlet />

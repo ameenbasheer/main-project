@@ -67,10 +67,14 @@ export default function RegisterPage() {
   const [formError, setFormError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { register, isLoading } = useAuth();
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
+  const { register, verifyOtp, resendOtp, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const highlights = role === 'farmer' ? FARMER_HIGHLIGHTS : BUYER_HIGHLIGHTS;
+  const isVerifying = Boolean(pendingEmail);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -81,6 +85,20 @@ export default function RegisterPage() {
     e.preventDefault();
     if (isLoading) return;
 
+    if (isVerifying) {
+      if (!otpCode.trim()) {
+        setFormError('Enter the OTP code from your email.');
+        return;
+      }
+      try {
+        const user = await verifyOtp({ email: pendingEmail, otpCode });
+        navigate(user.role === 'farmer' ? '/onboarding' : '/marketplace');
+      } catch (err) {
+        setFormError(err.message);
+      }
+      return;
+    }
+
     if (!PASSWORD_RULES.every((r) => r.test(formData.password))) {
       setFormError('Password must be at least 8 characters and include a number and a special character.');
       return;
@@ -90,13 +108,27 @@ export default function RegisterPage() {
       return;
     }
     try {
-      const user = await register({
+      const result = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role,
       });
-      navigate(user.role === 'farmer' ? '/onboarding' : '/marketplace');
+      setPendingEmail(result.email);
+      setResendMessage('');
+      setFormError('OTP sent to your email. Enter the code below.');
+    } catch (err) {
+      setFormError(err.message);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!pendingEmail || isLoading) return;
+    setFormError('');
+    setResendMessage('');
+    try {
+      const result = await resendOtp({ email: pendingEmail });
+      setResendMessage(result.message || 'A new code was sent to your email.');
     } catch (err) {
       setFormError(err.message);
     }
@@ -215,123 +247,166 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isLoading}>
-              {/* Name */}
-              <div>
-                <label className="text-light-text text-xs font-medium block mb-1">
-                  Full name
-                </label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
-                  <FiUser className="text-accent shrink-0" size={16} />
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder={role === 'farmer' ? 'Maria Santos' : 'Ahmed Khan'}
-                    className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
-                    required
-                  />
-                </div>
-              </div>
+              {isVerifying ? (
+                <>
+                  <div className="rounded-2xl border border-light-border bg-light-bg p-4">
+                    <p className="text-light-text text-sm font-medium mb-2">Verify your email</p>
+                    <p className="text-light-muted text-xs mb-4">
+                      We sent a 6-digit code to <strong>{pendingEmail}</strong>. Enter it below to finish creating your account.
+                    </p>
+                    <label className="text-light-text text-xs font-medium block mb-1">
+                      Verification code
+                    </label>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
+                      <FiMail className="text-accent shrink-0" size={16} />
+                      <input
+                        type="text"
+                        name="otpCode"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                        placeholder="123456"
+                        className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
+                        required
+                      />
+                    </div>
+                    {resendMessage && (
+                      <div className="mt-3 rounded-lg border border-green-400/30 bg-green-500/10 px-3 py-2 text-green-700 text-xs">
+                        {resendMessage}
+                      </div>
+                    )}
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <button
+                        type="button"
+                        onClick={handleResend}
+                        disabled={isLoading}
+                        className="inline-flex items-center justify-center rounded-xl border border-light-border bg-transparent px-4 py-3 text-sm font-medium text-light-text hover:border-accent hover:text-accent transition disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        Resend code
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Name */}
+                  <div>
+                    <label className="text-light-text text-xs font-medium block mb-1">
+                      Full name
+                    </label>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
+                      <FiUser className="text-accent shrink-0" size={16} />
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder={role === 'farmer' ? 'Maria Santos' : 'Ahmed Khan'}
+                        className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              {/* Email */}
-              <div>
-                <label className="text-light-text text-xs font-medium block mt-2 mb-1">
-                  Email address
-                </label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
-                  <FiMail className="text-accent shrink-0" size={16} />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder={role === 'farmer' ? 'maria@farm.com' : 'ahmed@buyer.com'}
-                    className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
-                    required
-                  />
-                </div>
-              </div>
+                  {/* Email */}
+                  <div>
+                    <label className="text-light-text text-xs font-medium block mt-2 mb-1">
+                      Email address
+                    </label>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
+                      <FiMail className="text-accent shrink-0" size={16} />
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder={role === 'farmer' ? 'maria@farm.com' : 'ahmed@buyer.com'}
+                        className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-light-text text-xs font-medium block mt-2 mb-1">
-                  Password
-                </label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
-                  <FiLock className="text-accent shrink-0" size={16} />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="text-light-muted hover:text-accent transition"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                  </button>
-                </div>
+                  {/* Password */}
+                  <div>
+                    <label className="text-light-text text-xs font-medium block mt-2 mb-1">
+                      Password
+                    </label>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
+                      <FiLock className="text-accent shrink-0" size={16} />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((s) => !s)}
+                        className="text-light-muted hover:text-accent transition"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                      </button>
+                    </div>
 
-                {/* Live password requirements */}
-                {formData.password && (
-                  <ul className="mt-2 space-y-1">
-                    {PASSWORD_RULES.map((rule) => {
-                      const met = rule.test(formData.password);
-                      return (
-                        <li
-                          key={rule.id}
-                          className={`flex items-center gap-1.5 text-xs transition-colors ${
-                            met ? 'text-accent' : 'text-light-muted'
-                          }`}
-                        >
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
-                              met ? 'bg-accent text-white' : 'border border-light-border'
-                            }`}
-                          >
-                            {met && <FiCheck size={9} />}
-                          </span>
-                          {rule.label}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
+                    {/* Live password requirements */}
+                    {formData.password && (
+                      <ul className="mt-2 space-y-1">
+                        {PASSWORD_RULES.map((rule) => {
+                          const met = rule.test(formData.password);
+                          return (
+                            <li
+                              key={rule.id}
+                              className={`flex items-center gap-1.5 text-xs transition-colors ${
+                                met ? 'text-accent' : 'text-light-muted'
+                              }`}
+                            >
+                              <span
+                                className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
+                                  met ? 'bg-accent text-white' : 'border border-light-border'
+                                }`}
+                              >
+                                {met && <FiCheck size={9} />}
+                              </span>
+                              {rule.label}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label className="text-light-text text-xs font-medium block mt-2 mb-1">
-                  Confirm password
-                </label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
-                  <FiLock className="text-accent shrink-0" size={16} />
-                  <input
-                    type={showConfirm ? 'text' : 'password'}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm((s) => !s)}
-                    className="text-light-muted hover:text-accent transition"
-                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                  >
-                    {showConfirm ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                  </button>
-                </div>
-              </div>
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="text-light-text text-xs font-medium block mt-2 mb-1">
+                      Confirm password
+                    </label>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-light-bg border border-light-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition">
+                      <FiLock className="text-accent shrink-0" size={16} />
+                      <input
+                        type={showConfirm ? 'text' : 'password'}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="bg-transparent border-none outline-none text-light-text text-sm flex-1 placeholder:text-light-muted"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((s) => !s)}
+                        className="text-light-muted hover:text-accent transition"
+                        aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirm ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {formError && (
                 <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-red-600 text-xs text-center">
@@ -348,11 +423,11 @@ export default function RegisterPage() {
                 {isLoading ? (
                   <>
                     <FiLoader size={14} className="animate-spin" />
-                    Creating account...
+                    {isVerifying ? 'Verifying code...' : 'Processing...'}
                   </>
                 ) : (
                   <>
-                    Create {role === 'farmer' ? 'Farmer' : 'Buyer'} account
+                    {isVerifying ? 'Verify your email' : `Create ${role === 'farmer' ? 'Farmer' : 'Buyer'} account`}
                     <FiArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
                   </>
                 )}

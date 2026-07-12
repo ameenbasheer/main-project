@@ -20,6 +20,7 @@ import { useApp } from '../context/AppContext';
 import { DecorativeCircle } from '../components/common/DecorativeElements';
 import Reveal from '../components/common/Reveal';
 import logo from '../assets/logo-green.png';
+import blogPosts from '../data/blogPosts';
 
 const testimonials = [
   {
@@ -52,35 +53,7 @@ const testimonials = [
   },
 ];
 
-const blogPosts = [
-  {
-    tag: 'Guide',
-    title: '5 monsoon crops that thrive in Kerala backyards',
-    excerpt:
-      'From okra to spinach — the easiest, highest-yielding crops to plant before the rains arrive.',
-    read: '6 min read',
-    image:
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=70',
-  },
-  {
-    tag: 'Tech',
-    title: 'How AI is helping smallholder farmers double their yield',
-    excerpt:
-      'A look at the disease detection and yield-forecast models powering GrownRoot under the hood.',
-    read: '8 min read',
-    image:
-      'https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&fit=crop&w=600&q=70',
-  },
-  {
-    tag: 'Story',
-    title: "Meet the women growing Kerala's finest cardamom",
-    excerpt:
-      'A photo essay on the all-women cooperative reshaping spice farming in the Western Ghats.',
-    read: '4 min read',
-    image:
-      'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=70',
-  },
-];
+// blogPosts imported from data/blogPosts.js
 
 export default function LandingPage() {
   const { products, weather } = useApp();
@@ -330,10 +303,10 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {blogPosts.map((p, i) => (
               <Reveal key={i} direction="up" delay={Math.min(i * 120, 480)} className="tilt-card h-full">
-              <a
-                href="#"
-                className="glass-card overflow-hidden p-0 block group h-full"
-              >
+                <Link
+                  to={`/articles/${i}`}
+                  className="glass-card overflow-hidden p-0 block group h-full"
+                >
                 <div className="relative h-44 overflow-hidden">
                   <img
                     src={p.image}
@@ -359,7 +332,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
               </Reveal>
             ))}
           </div>
