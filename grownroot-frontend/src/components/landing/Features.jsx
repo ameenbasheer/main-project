@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { FiSun, FiShield, FiCloudRain, FiShoppingBag } from 'react-icons/fi';
 import Card from '../common/Card';
+import LoginPromptModal from '../common/LoginPromptModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,6 +31,9 @@ const features = [
 export default function Features() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  // Holds the intended destination when a logged-out user clicks a card, which
+  // triggers the login prompt instead of a silent redirect.
+  const [pendingRedirect, setPendingRedirect] = useState(null);
 
   const routeFor = (title) => {
     switch (title) {
@@ -51,8 +56,9 @@ export default function Features() {
     if (isAuthenticated) {
       navigate(to);
     } else {
-      // send user to login with redirect so they can be returned after sign-in
-      navigate(`/login?redirect=${encodeURIComponent(to)}`);
+      // prompt the user to log in (with a redirect back to the feature) rather
+      // than silently bouncing them to the login page
+      setPendingRedirect(to);
     }
   };
   return (
@@ -83,6 +89,13 @@ export default function Features() {
           </Card>
         ))}
       </div>
+
+      {pendingRedirect && (
+        <LoginPromptModal
+          redirect={pendingRedirect}
+          onClose={() => setPendingRedirect(null)}
+        />
+      )}
     </section>
   );
 }

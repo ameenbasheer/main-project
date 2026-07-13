@@ -37,10 +37,12 @@ export default function Navbar() {
               <FiShoppingBag size={15} />
               Marketplace
             </NavLink>
-            <NavLink to="/weather" className={tabClass}>
-              <FiCloudRain size={15} />
-              Weather
-            </NavLink>
+            {isAuthenticated && (
+              <NavLink to="/weather" className={tabClass}>
+                <FiCloudRain size={15} />
+                Weather
+              </NavLink>
+            )}
             {isAuthenticated && user?.role === 'farmer' && (
               <NavLink to="/dashboard" className={tabClass}>
                 <FiGrid size={15} />
@@ -62,9 +64,11 @@ export default function Navbar() {
             <NavLink to="/marketplace" className={tabIconClass} aria-label="Marketplace">
               <FiShoppingBag size={16} />
             </NavLink>
-            <NavLink to="/weather" className={tabIconClass} aria-label="Weather">
-              <FiCloudRain size={16} />
-            </NavLink>
+            {isAuthenticated && (
+              <NavLink to="/weather" className={tabIconClass} aria-label="Weather">
+                <FiCloudRain size={16} />
+              </NavLink>
+            )}
           </div>
         )}
 

@@ -59,18 +59,21 @@ export default function AppRoutes() {
         </FarmerRoute>
       } />
 
-      {/* Marketplace & Weather (public — browse without login) */}
+      {/* Marketplace (public — browse without login) */}
       <Route element={<MainLayout />}>
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/:id" element={<ProductDetail />} />
         <Route path="/articles/:id" element={<ArticleDetail />} />
-        {/* WeatherPage self-manages no horizontal gutter; MainLayout's outer
+        {/* Weather is tied to the farmer's saved location, so it requires login.
+            WeatherPage self-manages no horizontal gutter; MainLayout's outer
             container supplies the side gutters, so this wrapper only narrows the
             content column (max-w-7xl) and adds vertical rhythm. */}
         <Route path="/weather" element={
-          <main className="max-w-7xl mx-auto py-5">
-            <WeatherPage />
-          </main>
+          <ProtectedRoute>
+            <main className="max-w-7xl mx-auto py-5">
+              <WeatherPage />
+            </main>
+          </ProtectedRoute>
         } />
 
         {/* Account pages — any authenticated user (farmer or buyer) */}

@@ -17,6 +17,7 @@ import Hero from '../components/landing/Hero';
 import Features from '../components/landing/Features';
 import ProductCard from '../components/marketplace/ProductCard';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { DecorativeCircle } from '../components/common/DecorativeElements';
 import Reveal from '../components/common/Reveal';
 import logo from '../assets/logo-green.png';
@@ -57,6 +58,7 @@ const testimonials = [
 
 export default function LandingPage() {
   const { products, weather } = useApp();
+  const { isAuthenticated } = useAuth();
   const featuredProducts = products.slice(0, 8);
 
   const [tIndex, setTIndex] = useState(0);
@@ -112,10 +114,12 @@ export default function LandingPage() {
               <FiArrowRight size={14} />
             </Link>
           </div>
-        </div>    
+        </div>
       </section>
 
-      {/* Today's Weather — LIGHT */}
+      {/* Today's Weather — LIGHT (only for logged-in users; anonymous visitors
+          have no farm location, so there's no real weather to show) */}
+      {isAuthenticated && (
       <section className="section-band-green relative mt-5 overflow-hidden">
         <DecorativeCircle size="md" className="-bottom-18 -right-10  opacity-40 !border-white/20" />
         <div className="relative z-10 max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 lg:px-20 pb-5">
@@ -195,6 +199,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Features — GREEN BAND */}
       <section className="relative overflow-hidden">
@@ -292,7 +297,7 @@ export default function LandingPage() {
               </div>
               <a
                 href="#"
-                className="pill-btn hidden md:inline-flex items-center gap-2 text-sm !py-2.5 mb-4 link-draw"
+                className="pill-btn hidden md:inline-flex items-center gap-2 text-sm !py-2.5 shrink-0 mb-4"
               >
                 All Articles
                 <FiArrowRight size={14} />
@@ -307,32 +312,32 @@ export default function LandingPage() {
                   to={`/articles/${i}`}
                   className="glass-card overflow-hidden p-0 block group h-full"
                 >
-                <div className="relative h-44 overflow-hidden">
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className="w-full h-full object-cover transition-transform duration-[800ms] group-hover:scale-110"
-                  />
-                  <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-1 rounded-full bg-accent text-white">
-                    {p.tag}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-dark-text font-semibold text-base leading-snug mb-2 group-hover:text-accent transition-colors">
-                    {p.title}
-                  </h3>
-                  <p className="text-dark-muted text-xs leading-relaxed mb-3 line-clamp-2">
-                    {p.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-dark-muted">{p.read}</span>
-                    <span className="text-accent font-semibold inline-flex items-center gap-1">
-                      Read
-                      <FiArrowRight size={11} className="transition-transform group-hover:translate-x-1" />
+                  <div className="relative h-44 overflow-hidden">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="w-full h-full object-cover transition-transform duration-[800ms] group-hover:scale-110"
+                    />
+                    <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-1 rounded-full bg-accent text-white">
+                      {p.tag}
                     </span>
                   </div>
-                </div>
-              </Link>
+                  <div className="p-4">
+                    <h3 className="text-dark-text font-semibold text-base leading-snug mb-2 group-hover:text-accent transition-colors">
+                      {p.title}
+                    </h3>
+                    <p className="text-dark-muted text-xs leading-relaxed mb-3 line-clamp-2">
+                      {p.excerpt}
+                    </p>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-dark-muted">{p.read}</span>
+                      <span className="text-accent font-semibold inline-flex items-center gap-1">
+                        Read
+                        <FiArrowRight size={11} className="transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -340,7 +345,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer CTA — LIGHT */}
-      <section className="py-20 relative overflow-hidden my-5">
+      <section className="py-5 relative overflow-hidden my-5">
         <Reveal direction="scale">
           <div className="max-w-2xl mx-auto text-center relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold text-dark-text leading-tight mt-5">
@@ -389,7 +394,9 @@ export default function LandingPage() {
             <h4 className="text-dark-text font-semibold text-sm mb-3 uppercase tracking-wider">Product</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/marketplace" className="text-dark-muted hover:text-accent transition">Marketplace</Link></li>
-              <li><Link to="/weather" className="text-dark-muted hover:text-accent transition">Weather</Link></li>
+              {isAuthenticated && (
+                <li><Link to="/weather" className="text-dark-muted hover:text-accent transition">Weather</Link></li>
+              )}
               <li><Link to="/dashboard" className="text-dark-muted hover:text-accent transition">Dashboard</Link></li>
               <li><Link to="/dashboard/suggest" className="text-dark-muted hover:text-accent transition">AI Suggestions</Link></li>
               <li><Link to="/dashboard/disease" className="text-dark-muted hover:text-accent transition">Disease Detection</Link></li>
