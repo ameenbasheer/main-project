@@ -4,11 +4,12 @@ import { FiPlus } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import ProductCard from '../../components/marketplace/ProductCard';
+import ProductCardSkeleton from '../../components/marketplace/ProductCardSkeleton';
 import SearchBar from '../../components/common/SearchBar';
 import { DecorativeCircle } from '../../components/common/DecorativeElements';
 
 export default function MarketplacePage() {
-  const { products } = useApp();
+  const { products, productsLoading } = useApp();
   const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState('');
 
@@ -56,12 +57,14 @@ export default function MarketplacePage() {
         <DecorativeCircle size="xl" className="-bottom-40 -left-40 opacity-15" />
         <div className="relative z-10 max-w-[1900px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 py-5">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {productsLoading
+              ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+              : filtered.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
           </div>
 
-          {filtered.length === 0 && (
+          {!productsLoading && filtered.length === 0 && (
             <div className="text-center py-5">
               <p className="text-dark-muted text-lg">No products found.</p>
             </div>

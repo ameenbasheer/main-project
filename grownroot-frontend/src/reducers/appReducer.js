@@ -7,6 +7,7 @@ export const APP_ACTIONS = {
   ADD_CROP_SALE: 'ADD_CROP_SALE',
   ADD_CROP_NOTE: 'ADD_CROP_NOTE',
   SET_PRODUCTS: 'SET_PRODUCTS',
+  SET_PRODUCTS_LOADING: 'SET_PRODUCTS_LOADING',
   ADD_PRODUCT: 'ADD_PRODUCT',
   DELETE_PRODUCT: 'DELETE_PRODUCT',
   SET_WEATHER: 'SET_WEATHER',
@@ -51,6 +52,8 @@ export const initialAppState = {
   // Crops & products are fetched from the backend (see AppContext).
   crops: [],
   products: [],
+  // True while the marketplace products are being fetched (see AppContext).
+  productsLoading: true,
   // Shopping cart & placed orders — loaded from localStorage per logged-in user.
   cart: [],
   orders: [],
@@ -113,6 +116,8 @@ export function appReducer(state, action) {
       };
     case APP_ACTIONS.SET_PRODUCTS:
       return { ...state, products: action.payload };
+    case APP_ACTIONS.SET_PRODUCTS_LOADING:
+      return { ...state, productsLoading: action.payload };
     case APP_ACTIONS.ADD_PRODUCT:
       return { ...state, products: [...state.products, action.payload] };
     case APP_ACTIONS.DELETE_PRODUCT:

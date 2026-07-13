@@ -16,6 +16,7 @@ import {
 import Hero from '../components/landing/Hero';
 import Features from '../components/landing/Features';
 import ProductCard from '../components/marketplace/ProductCard';
+import ProductCardSkeleton from '../components/marketplace/ProductCardSkeleton';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { DecorativeCircle } from '../components/common/DecorativeElements';
@@ -57,7 +58,7 @@ const testimonials = [
 // blogPosts imported from data/blogPosts.js
 
 export default function LandingPage() {
-  const { products, weather } = useApp();
+  const { products, productsLoading, weather } = useApp();
   const { isAuthenticated } = useAuth();
   const featuredProducts = products.slice(0, 8);
 
@@ -98,11 +99,13 @@ export default function LandingPage() {
           </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {featuredProducts.map((product, i) => (
-              <Reveal key={product.id} direction="up" delay={Math.min(i * 80, 480)} className="tilt-card h-full">
-                <ProductCard product={product} />
-              </Reveal>
-            ))}
+            {productsLoading
+              ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+              : featuredProducts.map((product, i) => (
+                  <Reveal key={product.id} direction="up" delay={Math.min(i * 80, 480)} className="tilt-card h-full">
+                    <ProductCard product={product} />
+                  </Reveal>
+                ))}
           </div>
 
           <div className="mt-5 text-center md:hidden">

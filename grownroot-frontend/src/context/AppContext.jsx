@@ -14,10 +14,12 @@ export function AppProvider({ children }) {
 
   // Products power the public marketplace — load them for everyone.
   useEffect(() => {
+    dispatch({ type: APP_ACTIONS.SET_PRODUCTS_LOADING, payload: true });
     productApi
       .list()
       .then((products) => dispatch({ type: APP_ACTIONS.SET_PRODUCTS, payload: products }))
-      .catch(() => dispatch({ type: APP_ACTIONS.SET_PRODUCTS, payload: [] }));
+      .catch(() => dispatch({ type: APP_ACTIONS.SET_PRODUCTS, payload: [] }))
+      .finally(() => dispatch({ type: APP_ACTIONS.SET_PRODUCTS_LOADING, payload: false }));
   }, []);
 
   // Crops & farmer profile are per-user — (re)load whenever auth changes.
